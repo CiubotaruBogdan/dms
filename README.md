@@ -1,62 +1,87 @@
 # MilDocDMS Installer
 
-Acest repository conține script-ul `init.sh`, un instrument interactiv de întreținere pentru Ubuntu. Script-ul permite actualizarea sistemului și instalarea unor aplicații utile, precum Ollama, Docker și MilDocDMS, precum și gestionarea logurilor operațiunilor.
+Acest repository conține script-ul `init.sh`, un instrument interactiv de întreținere pentru Ubuntu. Script-ul permite instalarea și gestionarea MilDocDMS și a dependențelor sale, precum și monitorizarea și întreținerea sistemului.
+
+## Cerințe Sistem
+- Ubuntu Linux
+- Drepturi de administrator (root)
+- Conexiune la internet
+- Pachete necesare:
+  ```bash
+  sudo apt install -y wget dos2unix xrdp
+  ```
+
+## Instalare și Rulare
+
+1. Descarcă și pregătește scriptul pentru rulare:
+   ```bash
+   wget https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/init.sh && \
+   dos2unix init.sh && \
+   chmod +x init.sh && \
+   sudo ./init.sh
+   ```
 
 ## Funcționalități
 
+### Gestionare Loguri
 - **00. Afișează log-uri**  
-  Afișează conținutul fișierului de loguri situat în `/tmp/script_intretinere.log`.
-
+  Afișează conținutul fișierului de loguri situat în `/tmp/script_intretinere.log`
 - **01. Șterge log-uri**  
-  Șterge (trunchează) fișierul de loguri pentru a începe o nouă sesiune de diagnosticare.
+  Șterge (trunchează) fișierul de loguri pentru a începe o nouă sesiune de diagnosticare
 
+### Instalare și Actualizare
 - **1. Actualizează Linux**  
-  Rulează `apt-get update` și `apt-get upgrade -y` pentru a actualiza sistemul cu cele mai recente pachete.
-
+  Actualizează sistemul folosind `apt-get update` și `apt-get upgrade -y`
 - **2. Instalează Ollama**  
-  Instalează Ollama rulând comanda:
-  ```bash
-  curl -fsSL https://ollama.com/install.sh | sh
-  ```
-  Activitatea este logată în fișierul `/tmp/script_intretinere.log`.
-
+  Instalează platforma Ollama folosind scriptul oficial de instalare
 - **3. Instalează Docker**  
-  Configurează depozitul oficial Docker, importă cheia GPG și instalează Docker împreună cu componentele aferente:
-  - `docker-ce`
-  - `docker-ce-cli`
-  - `containerd.io`
-  - `docker-buildx-plugin`
-  - `docker-compose-plugin`
-
+  Configurează și instalează Docker și componentele necesare:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin
 - **4. Instalează MilDocDMS**  
-  *Precondiție:* Docker trebuie să fie instalat (opțiunea 3).
-  - Creează un director numit `mildocdms` în directorul home al utilizatorului non-root (cel care a folosit `sudo`).
-  - Descarcă fișierele `docker-compose.env` și `docker-compose.yml` din repository-ul acestui proiect.
-  - Pornește MilDocDMS cu comanda:
-    ```bash
-    docker compose up -d
-    ```
-  - După instalare, script-ul te întreabă dacă dorești să urmărești logurile în timp real (folosind `docker compose logs -f`).
+  Instalează și configurează MilDocDMS:
+  - Creează directorul de lucru în home-ul utilizatorului
+  - Descarcă și configurează fișierele docker-compose
+  - Pornește containerele necesare
+  - Oferă opțiunea de urmărire log-uri în timp real
 
-- **q. Ieșire**  
-  Închide script-ul.
+### Gestionare Container MilDocDMS
+- **5. Dezinstalează MilDocDMS**  
+  Oprește și elimină containerele MilDocDMS (disponibil când serviciul rulează)
+- **6. Mount container MilDocDMS**  
+  Pornește containerele MilDocDMS folosind `docker compose up -d`
+- **7. Creare super utilizator**  
+  Creează un cont de administrator pentru interfața web (disponibil când serviciul rulează)
+- **8. Accesează shell container webserver**  
+  Deschide un shell în containerul webserver pentru operațiuni avansate
+- **9. Afișează path-ul folderului MilDocDMS**  
+  Arată locația instalării MilDocDMS pe sistemul local
 
-## Prerequisites
+## Monitorizare și Logging
 
-Asigură-te că ai instalate următoarele pachete necesare pentru rularea scriptului:
-```bash
-sudo apt install -y wget dos2unix xrdp
-```
+- Toate operațiunile sunt înregistrate în `/tmp/script_intretinere.log`
+- Opțiunile de vizualizare (00) și ștergere (01) a logurilor sunt disponibile în meniul principal
+- Pentru containerele active, scriptul oferă urmărirea log-urilor în timp real
 
-## Instrucțiuni de Instalare și Rulare
+## Note de Utilizare
 
-1. Descărcă și rulează script-ul într-o singură comandă:
-   ```bash
-   wget https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/init.sh && dos2unix init.sh && chmod +x init.sh && sudo ./init.sh
-   ```
-
-## Loguri
-Toate operațiunile sunt logate în fișierul `/tmp/script_intretinere.log`. Utilizează opțiunile `00` pentru a vizualiza logurile și `01` pentru a le șterge.
+- Scriptul trebuie rulat cu drepturi de administrator (sudo/root)
+- Anumite opțiuni sunt disponibile doar când containerul MilDocDMS este activ
+- Se recomandă instalarea în ordinea prezentată în meniu (1-4) pentru dependențe
+- La instalarea MilDocDMS, asigurați-vă că Docker este instalat și funcțional
 
 ## Contribuții
-Dacă întâmpini probleme sau dorești să adaugi noi funcționalități, te rugăm să deschizi un issue sau să contribui printr-un pull request.
+
+Dacă întâmpinați probleme sau doriți să contribuiți cu îmbunătățiri:
+1. Deschideți un issue pentru probleme sau sugestii
+2. Creați un pull request pentru modificări
+3. Consultați documentația pentru ghiduri de contribuție
+
+## Securitate
+
+- Scriptul verifică privilegiile necesare
+- Folosește surse oficiale pentru instalarea componentelor
+- Menține izolarea containerelor pentru securitate
