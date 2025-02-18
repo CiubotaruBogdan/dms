@@ -1,6 +1,6 @@
 # Ubuntu Initializer
 
-Acest repository conține script-ul `ubuntu_initializer.sh`, un instrument interactiv de întreținere pentru Ubuntu. Script-ul permite actualizarea sistemului și instalarea unor aplicații utile, precum Ollama, Docker și MilDocDMS, precum și gestionarea logurilor operațiunilor.
+Acest repository conține script-ul `init.sh`, un instrument interactiv de întreținere pentru Ubuntu. Script-ul permite actualizarea sistemului și instalarea unor aplicații utile, precum Ollama, Docker și MilDocDMS, precum și gestionarea logurilor operațiunilor.
 
 ## Funcționalități
 
@@ -45,7 +45,7 @@ Acest repository conține script-ul `ubuntu_initializer.sh`, un instrument inter
 
 1. Descărcă și rulează script-ul într-o singură comandă:
    ```bash
-   wget https://github.com/CiubotaruBogdan/ubuntu-initializer/ubuntu_initializer.sh && dos2unix ubuntu_initializer.sh && chmod +x ubuntu_initializer.sh && sudo ./ubuntu_initializer.sh
+   wget https://github.com/CiubotaruBogdan/dms/init.sh && dos2unix init.sh && chmod +x init.sh && sudo ./init.sh
    ```
 
 ## Loguri
