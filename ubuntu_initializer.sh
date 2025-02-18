@@ -112,7 +112,7 @@ while true; do
             fi
             mildocdms_dir="$user_home/mildocdms"
             mkdir -p "$mildocdms_dir"
-            cd "$mildocdms_dir"
+            cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
             # Descarcă fișierele docker-compose.env și docker-compose.yml din GitHub
             wget -O docker-compose.env https://raw.githubusercontent.com/CiubotaruBogdan/ubuntu-initializer/main/docker/docker-compose.env >> "$LOG_FILE" 2>&1
             wget -O docker-compose.yml https://raw.githubusercontent.com/CiubotaruBogdan/ubuntu-initializer/main/docker/docker-compose.yml >> "$LOG_FILE" 2>&1
@@ -121,12 +121,13 @@ while true; do
             if [ $? -eq 0 ]; then
                 echo -e "\033[1;32mMilDocDMS a fost instalat și pornit cu succes.\033[0m"
                 log "MilDocDMS instalat cu succes."
+                echo -e "\n--- Urmărirea log-urilor în timp real ---"
+                echo "Apasă Ctrl+C pentru a reveni la meniu."
+                docker compose logs -f
             else
                 echo -e "\033[1;31mEroare la instalarea MilDocDMS.\033[0m"
                 log "Eroare la instalarea MilDocDMS."
             fi
-            echo -e "\n--- Log-ul operației ---"
-            tail -n 10 "$LOG_FILE"
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
         q|Q)
