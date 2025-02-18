@@ -1,4 +1,4 @@
-# Ubuntu Initializer
+# MilDocDMS Installer
 
 Acest repository conține script-ul `init.sh`, un instrument interactiv de întreținere pentru Ubuntu. Script-ul permite actualizarea sistemului și instalarea unor aplicații utile, precum Ollama, Docker și MilDocDMS, precum și gestionarea logurilor operațiunilor.
 
@@ -40,6 +40,13 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 
 - **q. Ieșire**  
   Închide script-ul.
+
+## Prerequisites
+
+Asigură-te că ai instalate următoarele pachete necesare pentru rularea scriptului:
+```bash
+sudo apt install -y wget dos2unix xrdp
+```
 
 ## Instrucțiuni de Instalare și Rulare
 
