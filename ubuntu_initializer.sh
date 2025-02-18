@@ -4,11 +4,6 @@
 # Author: Bogdan Ciubotaru
 # Script for Ubuntu system configuration
 
-# Add text at the beginning to show how to run
-echo -e "To run this script, use the following command:\n"
-echo -e "\033[1;33mcurl -sSL https://ciubotarubogdan.work/ubuntu_initializer.sh | sudo bash\033[0m\n"
-echo -e "Or copy this command from the website.\n"
-
 # Define colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -34,7 +29,7 @@ show_progress() {
 check_root() {
     if [ "$EUID" -ne 0 ]; then
         echo -e "${RED}This script requires root privileges to run.${NC}"
-        echo -e "${YELLOW}Please run with sudo.${NC}"
+        echo -e "${YELLOW}Please run with: curl -sSL https://ciubotarubogdan.work/ubuntu_initializer.sh | sudo bash${NC}"
         exit 1
     fi
 }
@@ -121,45 +116,35 @@ show_logs() {
     tail -n 50 /var/log/ubuntu_initializer.log
 }
 
-# Start screen
-clear
-echo -e "${BLUE}================================${NC}"
-echo -e "${GREEN}Ubuntu Initializer${NC}"
-echo -e "${YELLOW}Author: Bogdan Ciubotaru${NC}"
-echo -e "${BLUE}================================${NC}"
-echo -e "\nThis script helps you configure Ubuntu system with the following options:"
-echo -e "${YELLOW}0${NC} - Show system logs"
-echo -e "${YELLOW}1${NC} - Update system"
-echo -e "${YELLOW}2${NC} - Configure screen resolution"
-echo -e "${YELLOW}3${NC} - Install Docker"
-echo -e "${YELLOW}q${NC} - Exit"
-echo -e "${BLUE}================================${NC}"
-
-# Check root
+# Check root privileges first
 check_root
 
-# Main loop
+# Show menu and get user input
 while true; do
+    clear
+    echo -e "${BLUE}================================${NC}"
+    echo -e "${GREEN}Ubuntu Initializer${NC}"
+    echo -e "${YELLOW}Author: Bogdan Ciubotaru${NC}"
+    echo -e "${BLUE}================================${NC}"
+    echo -e "\nThis script helps you configure Ubuntu system with the following options:"
+    echo -e "${YELLOW}0${NC} - Show system logs"
+    echo -e "${YELLOW}1${NC} - Update system"
+    echo -e "${YELLOW}2${NC} - Configure screen resolution"
+    echo -e "${YELLOW}3${NC} - Install Docker"
+    echo -e "${YELLOW}q${NC} - Exit"
+    echo -e "${BLUE}================================${NC}"
+
     read -p "Choose an option (0-3 or q to exit): " option
+
     case $option in
-        0)
-            show_logs
-            ;;
-        1)
-            update_system
-            ;;
-        2)
-            configure_resolution
-            ;;
-        3)
-            install_docker
-            ;;
-        q|Q)
-            echo -e "${GREEN}Goodbye!${NC}"
-            exit 0
-            ;;
-        *)
-            echo -e "${RED}Invalid option. Please choose between 0-3 or q to exit.${NC}"
-            ;;
+        0) show_logs ;;
+        1) update_system ;;
+        2) configure_resolution ;;
+        3) install_docker ;;
+        q|Q) echo -e "${GREEN}Goodbye!${NC}"; exit 0 ;;
+        *) echo -e "${RED}Invalid option. Please choose between 0-3 or q to exit.${NC}" ;;
     esac
+
+    echo -e "\nPress Enter to continue..."
+    read
 done
