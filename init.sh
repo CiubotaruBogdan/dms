@@ -27,6 +27,9 @@ while true; do
     echo "2. Instalează Ollama"
     echo "3. Instalează Docker"
     echo "4. Instalează MilDocDMS"
+    echo "5. Dezinstalează MilDocDMS (docker compose down)"
+    echo "6. Mount container MilDocDMS (docker compose up -d)"
+    echo "7. Creare super utilizator (createsuperuser)"
     echo "q. Ieșire"
     echo "--------------------------------------"
     read -p "Alege o opțiune: " opt
@@ -136,16 +139,94 @@ while true; do
                 log "MilDocDMS instalat cu succes."
                 echo -e "\nStatusul containerelor MilDocDMS:"
                 docker compose ps
-                read -p "Doriți să urmăriți log-urile în timp real? (y/n): " follow_response
-                if [[ "$follow_response" =~ ^[Yy]$ ]]; then
-                    echo -e "\n--- Urmărirea log-urilor în timp real ---"
-                    echo "Apasă Ctrl+C pentru a reveni la meniu."
+                echo -e "\n--- Urmărirea log-urilor în timp real ---"
+                # Deschide o fereastră nouă de terminal pentru loguri, dacă este posibil
+                if command -v gnome-terminal &> /dev/null; then
+                    gnome-terminal -- bash -c "docker compose logs --follow --tail=100; exec bash"
+                elif command -v xterm &> /dev/null; then
+                    xterm -e "docker compose logs --follow --tail=100"
+                else
                     docker compose logs --follow --tail=100
                 fi
             else
                 echo -e "\033[1;31mEroare la instalarea MilDocDMS.\033[0m"
                 log "Eroare la instalarea MilDocDMS."
             fi
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        5)
+            echo "Dezinstalare MilDocDMS (docker compose down)..."
+            if [ -n "$SUDO_USER" ]; then
+                user_home=$(eval echo "~$SUDO_USER")
+            else
+                user_home="$HOME"
+            fi
+            mildocdms_dir="$user_home/mildocdms"
+            if [ ! -d "$mildocdms_dir" ]; then
+                echo "Directorul MilDocDMS nu există. Probabil nu a fost instalat."
+                read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+                continue
+            fi
+            cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
+            docker compose down >> "$LOG_FILE" 2>&1
+            if [ $? -eq 0 ]; then
+                echo -e "\033[1;32mMilDocDMS a fost dezinstalat cu succes.\033[0m"
+                log "MilDocDMS dezinstalat cu succes."
+            else
+                echo -e "\033[1;31mEroare la dezinstalarea MilDocDMS.\033[0m"
+                log "Eroare la dezinstalarea MilDocDMS."
+            fi
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        6)
+            echo "Mount container MilDocDMS (docker compose up -d)..."
+            if [ -n "$SUDO_USER" ]; then
+                user_home=$(eval echo "~$SUDO_USER")
+            else
+                user_home="$HOME"
+            fi
+            mildocdms_dir="$user_home/mildocdms"
+            if [ ! -d "$mildocdms_dir" ]; then
+                echo "Directorul MilDocDMS nu există. Instalează MilDocDMS mai întâi (opțiunea 4)."
+                read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+                continue
+            fi
+            cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
+            docker compose up -d >> "$LOG_FILE" 2>&1
+            if [ $? -eq 0 ]; then
+                echo -e "\033[1;32mContainerul MilDocDMS a fost montat cu succes.\033[0m"
+                log "Container MilDocDMS montat cu succes."
+                echo -e "\nStatusul containerelor MilDocDMS:"
+                docker compose ps
+                echo -e "\n--- Urmărirea log-urilor în timp real ---"
+                if command -v gnome-terminal &> /dev/null; then
+                    gnome-terminal -- bash -c "docker compose logs --follow --tail=100; exec bash"
+                elif command -v xterm &> /dev/null; then
+                    xterm -e "docker compose logs --follow --tail=100"
+                else
+                    docker compose logs --follow --tail=100
+                fi
+            else
+                echo -e "\033[1;31mEroare la montarea containerului MilDocDMS.\033[0m"
+                log "Eroare la montarea containerului MilDocDMS."
+            fi
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        7)
+            echo "Creare super utilizator (docker compose run --rm webserver createsuperuser)..."
+            if [ -n "$SUDO_USER" ]; then
+                user_home=$(eval echo "~$SUDO_USER")
+            else
+                user_home="$HOME"
+            fi
+            mildocdms_dir="$user_home/mildocdms"
+            if [ ! -d "$mildocdms_dir" ]; then
+                echo "Directorul MilDocDMS nu există. Instalează MilDocDMS mai întâi (opțiunea 4)."
+                read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+                continue
+            fi
+            cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
+            docker compose run --rm webserver createsuperuser
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
         q|Q)
