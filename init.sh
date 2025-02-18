@@ -19,7 +19,7 @@ fi
 while true; do
     clear
     echo "======================================"
-    echo "      Script de Întreținere Ubuntu"
+    echo "      Script de instalare MilDocDMS"
     echo "======================================"
     echo "00. Afișează log-uri"
     echo "01. Șterge log-uri"
@@ -142,7 +142,6 @@ while true; do
                 echo -e "\nStatusul containerelor MilDocDMS:"
                 docker compose ps
                 echo -e "\n--- Urmărirea log-urilor în timp real ---"
-                # Deschide o fereastră nouă de terminal pentru loguri, dacă este posibil
                 if command -v gnome-terminal &> /dev/null; then
                     gnome-terminal -- bash -c "docker compose logs --follow --tail=100; exec bash"
                 elif command -v xterm &> /dev/null; then
@@ -233,7 +232,6 @@ while true; do
             ;;
         8)
             echo "Acces container webserver..."
-            # Caută containerul care conține 'webserver' în nume
             container_name=$(docker ps --filter "name=webserver" --format "{{.Names}}" | head -n 1)
             if [ -z "$container_name" ]; then
                 echo "Nu s-a găsit containerul webserver."
@@ -254,7 +252,11 @@ while true; do
             if [ ! -d "$mildocdms_dir" ]; then
                 echo "Directorul MilDocDMS nu există."
             else
-                xdg-open "$mildocdms_dir"
+                if [ -n "$DISPLAY" ]; then
+                    sudo -u "$SUDO_USER" DISPLAY="$DISPLAY" XAUTHORITY="$user_home/.Xauthority" xdg-open "$mildocdms_dir"
+                else
+                    echo "Display-ul grafic nu este disponibil."
+                fi
             fi
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
