@@ -52,7 +52,7 @@ sudo apt install -y wget dos2unix xrdp
 
 1. Descărcă și rulează script-ul într-o singură comandă:
    ```bash
-   wget https://github.com/CiubotaruBogdan/dms/init.sh && dos2unix init.sh && chmod +x init.sh && sudo ./init.sh
+   wget https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/init.sh && dos2unix init.sh && chmod +x init.sh && sudo ./init.sh
    ```
 
 ## Loguri
