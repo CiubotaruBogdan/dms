@@ -118,13 +118,13 @@ while true; do
             mkdir -p "$mildocdms_dir"
             cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
             echo "Se descarcă docker-compose.env..."
-            wget -O docker-compose.env https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/docker-compose.env >> "$LOG_FILE" 2>&1
+            wget -O docker-compose.env https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/docker/docker-compose.env >> "$LOG_FILE" 2>&1
             if [ $? -ne 0 ]; then
                 echo -e "\033[1;31mEroare la descărcarea docker-compose.env.\033[0m"
                 continue
             fi
             echo "Se descarcă docker-compose.yml..."
-            wget -O docker-compose.yml https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/docker-compose.yml >> "$LOG_FILE" 2>&1
+            wget -O docker-compose.yml https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/docker/docker-compose.yml >> "$LOG_FILE" 2>&1
             if [ $? -ne 0 ]; then
                 echo -e "\033[1;31mEroare la descărcarea docker-compose.yml.\033[0m"
                 continue
