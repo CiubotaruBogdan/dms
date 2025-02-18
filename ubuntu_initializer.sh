@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script de întreținere Ubuntu (limba: română)
-# Acest script trebuie rulat cu privilegii de root.
-# Logurile se vor salva în fișierul: /tmp/script_intretinere.log
+# Acest script trebuie rulat ca root.
+# Logurile se vor salva în /tmp/script_intretinere.log
 
 LOG_FILE="/tmp/script_intretinere.log"
 
@@ -21,7 +21,8 @@ while true; do
     echo "======================================"
     echo "      Script de Întreținere Ubuntu"
     echo "======================================"
-    echo "0. Afișează log-uri"
+    echo "00. Afișează log-uri"
+    echo "01. Șterge log-uri"
     echo "1. Actualizează Linux"
     echo "2. Instalează Ollama"
     echo "3. Instalează Docker"
@@ -31,7 +32,7 @@ while true; do
     read -p "Alege o opțiune: " opt
 
     case $opt in
-        0)
+        "00")
             echo "Afișare log-uri din $LOG_FILE:"
             echo "--------------------------------------"
             if [ -f "$LOG_FILE" ]; then
@@ -39,6 +40,11 @@ while true; do
             else
                 echo "Nu există log-uri de afișat."
             fi
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        "01")
+            > "$LOG_FILE"
+            echo "Log-uri șterse."
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
         1)
@@ -97,14 +103,12 @@ while true; do
             ;;
         4)
             echo "Instalare MilDocDMS..."
-            # Verifică dacă docker este instalat
             if ! command -v docker &> /dev/null; then
                 echo -e "\033[1;31mDocker nu este instalat. Instalează Docker mai întâi (opțiunea 3).\033[0m"
                 read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
                 continue
             fi
             log "Încep instalarea MilDocDMS."
-            # Determină directorul home al utilizatorului non-root care a apelat sudo
             if [ -n "$SUDO_USER" ]; then
                 user_home=$(eval echo "~$SUDO_USER")
             else
@@ -113,10 +117,8 @@ while true; do
             mildocdms_dir="$user_home/mildocdms"
             mkdir -p "$mildocdms_dir"
             cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
-            # Descarcă fișierele docker-compose.env și docker-compose.yml din GitHub
             wget -O docker-compose.env https://raw.githubusercontent.com/CiubotaruBogdan/ubuntu-initializer/main/docker/docker-compose.env >> "$LOG_FILE" 2>&1
             wget -O docker-compose.yml https://raw.githubusercontent.com/CiubotaruBogdan/ubuntu-initializer/main/docker/docker-compose.yml >> "$LOG_FILE" 2>&1
-            # Pornește stack-ul Docker Compose
             docker compose up -d >> "$LOG_FILE" 2>&1
             if [ $? -eq 0 ]; then
                 echo -e "\033[1;32mMilDocDMS a fost instalat și pornit cu succes.\033[0m"
