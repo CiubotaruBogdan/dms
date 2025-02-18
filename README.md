@@ -43,24 +43,9 @@ Acest repository conține script-ul `ubuntu_initializer.sh`, un instrument inter
 
 ## Instrucțiuni de Instalare și Rulare
 
-1. Descărcă script-ul:
+1. Descărcă și rulează script-ul într-o singură comandă:
    ```bash
-   wget https://raw.githubusercontent.com/CiubotaruBogdan/ubuntu-initializer/main/ubuntu_initializer.sh
-   ```
-
-2. Convertește fișierul la format Unix (dacă este necesar):
-   ```bash
-   dos2unix ubuntu_initializer.sh
-   ```
-
-3. Fă fișierul executabil:
-   ```bash
-   chmod +x ubuntu_initializer.sh
-   ```
-
-4. Rulează script-ul cu privilegii de root:
-   ```bash
-   sudo ./ubuntu_initializer.sh
+   wget https://github.com/CiubotaruBogdan/ubuntu-initializer/ubuntu_initializer.sh && dos2unix ubuntu_initializer.sh && chmod +x ubuntu_initializer.sh && sudo ./ubuntu_initializer.sh
    ```
 
 ## Loguri
