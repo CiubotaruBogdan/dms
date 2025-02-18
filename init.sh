@@ -30,6 +30,8 @@ while true; do
     echo "5. Dezinstalează MilDocDMS (docker compose down)"
     echo "6. Mount container MilDocDMS (docker compose up -d)"
     echo "7. Creare super utilizator (createsuperuser)"
+    echo "8. Accesează shell container webserver"
+    echo "9. Deschide folderul MilDocDMS în File Explorer"
     echo "q. Ieșire"
     echo "--------------------------------------"
     read -p "Alege o opțiune: " opt
@@ -227,6 +229,33 @@ while true; do
             fi
             cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
             docker compose run --rm webserver createsuperuser
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        8)
+            echo "Acces container webserver..."
+            # Caută containerul care conține 'webserver' în nume
+            container_name=$(docker ps --filter "name=webserver" --format "{{.Names}}" | head -n 1)
+            if [ -z "$container_name" ]; then
+                echo "Nu s-a găsit containerul webserver."
+            else
+                echo "Intrare în containerul $container_name..."
+                docker exec -it "$container_name" bash
+            fi
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        9)
+            echo "Deschide folderul MilDocDMS în File Explorer..."
+            if [ -n "$SUDO_USER" ]; then
+                user_home=$(eval echo "~$SUDO_USER")
+            else
+                user_home="$HOME"
+            fi
+            mildocdms_dir="$user_home/mildocdms"
+            if [ ! -d "$mildocdms_dir" ]; then
+                echo "Directorul MilDocDMS nu există."
+            else
+                xdg-open "$mildocdms_dir"
+            fi
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
         q|Q)
