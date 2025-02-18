@@ -103,7 +103,6 @@ while true; do
             ;;
         4)
             echo "Instalare MilDocDMS..."
-            # Verifică dacă Docker este instalat
             if ! command -v docker &> /dev/null; then
                 echo -e "\033[1;31mDocker nu este instalat. Instalează Docker mai întâi (opțiunea 3).\033[0m"
                 read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
@@ -119,6 +118,7 @@ while true; do
             mildocdms_dir="$user_home/mildocdms"
             mkdir -p "$mildocdms_dir"
             cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
+            # Descărcă fișierele din repository-ul tău
             wget -O docker-compose.env https://raw.githubusercontent.com/CiubotaruBogdan/ubuntu-initializer/main/docker/docker-compose.env >> "$LOG_FILE" 2>&1
             wget -O docker-compose.yml https://raw.githubusercontent.com/CiubotaruBogdan/ubuntu-initializer/main/docker/docker-compose.yml >> "$LOG_FILE" 2>&1
             docker compose up -d >> "$LOG_FILE" 2>&1
