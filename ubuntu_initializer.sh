@@ -1,150 +1,141 @@
 #!/bin/bash
+# Script de întreținere Ubuntu (limba: română)
+# Acest script trebuie rulat cu privilegii de root.
+# Logurile se vor salva în fișierul: /tmp/script_intretinere.log
 
-# Ubuntu Initializer
-# Author: Bogdan Ciubotaru
-# Script for Ubuntu system configuration
+LOG_FILE="/tmp/script_intretinere.log"
 
-# Define colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Function to display progress bar
-show_progress() {
-    local duration=$1
-    local prefix=$2
-    for i in {0..100..10}; do
-        echo -ne "${BLUE}${prefix} [${i}%] ["
-        for ((j=0; j<i/2; j+=1)); do echo -ne "#"; done
-        for ((j=i/2; j<50; j+=1)); do echo -ne " "; done
-        echo -ne "]\r${NC}"
-        sleep $(bc <<< "scale=2; $duration/10")
-    done
-    echo -e "${GREEN}${prefix} [100%] [##################################################]${NC}"
+# Funcție pentru logare
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
 }
 
-# Check root privileges
-check_root() {
-    if [ "$EUID" -ne 0 ]; then
-        echo -e "${RED}This script requires root privileges to run.${NC}"
-        echo -e "${YELLOW}Please run with: curl -sSL https://ciubotarubogdan.work/ubuntu_initializer.sh | sudo bash${NC}"
-        exit 1
-    fi
-}
+# Verificare drepturi root
+if [[ $EUID -ne 0 ]]; then
+    echo "Acest script trebuie rulat ca root!"
+    exit 1
+fi
 
-# Function for logging
-log_message() {
-    local message=$1
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    echo "$timestamp - $message" >> /var/log/ubuntu_initializer.log
-}
-
-# Function for system update
-update_system() {
-    echo -e "${BLUE}System update in progress...${NC}"
-    log_message "Started system update"
-
-    apt-get update 2>/var/log/ubuntu_initializer.log
-    show_progress 2 "Updating package lists"
-
-    apt-get upgrade -y 2>/var/log/ubuntu_initializer.log
-    show_progress 3 "Installing updates"
-
-    echo -e "${GREEN}System successfully updated!${NC}"
-    log_message "System update completed"
-}
-
-# Function for resolution configuration
-configure_resolution() {
-    echo -e "${YELLOW}Screen resolution configuration${NC}"
-    read -p "Enter horizontal resolution (default 1920): " horizontal
-    read -p "Enter vertical resolution (default 1080): " vertical
-
-    horizontal=${horizontal:-1920}
-    vertical=${vertical:-1080}
-
-    echo -e "${BLUE}Configuring resolution ${horizontal}x${vertical}${NC}"
-
-    # Modify GRUB configuration
-    sed -i "s/GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash video=hyperv_fb:${horizontal}*${vertical}\"/" /etc/default/grub
-    update-grub
-    apt install linux-image-extra-virtual -y
-
-    show_progress 2 "Configuring resolution"
-
-    echo -e "${GREEN}Resolution configured. PowerShell command for Hyper-V host:${NC}"
-    echo -e "${YELLOW}set-vmvideo -vmname ubuntu -horizontalresolution:${horizontal} -verticalresolution:${vertical} -resolutiontype single${NC}"
-
-    log_message "Resolution configured to ${horizontal}x${vertical}"
-}
-
-# Function for Docker installation
-install_docker() {
-    echo -e "${BLUE}Installing Docker...${NC}"
-    log_message "Started Docker installation"
-
-    apt-get update
-    show_progress 1 "Updating system"
-
-    apt-get install -y ca-certificates curl
-    show_progress 1 "Installing certificates"
-
-    install -m 0755 -d /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-    chmod a+r /etc/apt/keyrings/docker.asc
-
-    echo \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-    $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
-    tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-    apt-get update
-    show_progress 1 "Configuring repository"
-
-    apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-    show_progress 2 "Installing Docker"
-
-    echo -e "${GREEN}Docker successfully installed!${NC}"
-    log_message "Docker installation completed"
-}
-
-# Function to display logs
-show_logs() {
-    echo -e "${YELLOW}Latest system logs:${NC}"
-    tail -n 50 /var/log/ubuntu_initializer.log
-}
-
-# Check root privileges first
-check_root
-
-# Show menu and get user input
 while true; do
     clear
-    echo -e "${BLUE}================================${NC}"
-    echo -e "${GREEN}Ubuntu Initializer${NC}"
-    echo -e "${YELLOW}Author: Bogdan Ciubotaru${NC}"
-    echo -e "${BLUE}================================${NC}"
-    echo -e "\nThis script helps you configure Ubuntu system with the following options:"
-    echo -e "${YELLOW}0${NC} - Show system logs"
-    echo -e "${YELLOW}1${NC} - Update system"
-    echo -e "${YELLOW}2${NC} - Configure screen resolution"
-    echo -e "${YELLOW}3${NC} - Install Docker"
-    echo -e "${YELLOW}q${NC} - Exit"
-    echo -e "${BLUE}================================${NC}"
+    echo "======================================"
+    echo "      Script de Întreținere Ubuntu"
+    echo "======================================"
+    echo "0. Afișează log-uri"
+    echo "1. Actualizează Linux"
+    echo "2. Instalează Ollama"
+    echo "3. Instalează Docker"
+    echo "4. Instalează MilDocDMS"
+    echo "q. Ieșire"
+    echo "--------------------------------------"
+    read -p "Alege o opțiune: " opt
 
-    read -p "Choose an option (0-3 or q to exit): " option
-
-    case $option in
-        0) show_logs ;;
-        1) update_system ;;
-        2) configure_resolution ;;
-        3) install_docker ;;
-        q|Q) echo -e "${GREEN}Goodbye!${NC}"; exit 0 ;;
-        *) echo -e "${RED}Invalid option. Please choose between 0-3 or q to exit.${NC}" ;;
+    case $opt in
+        0)
+            echo "Afișare log-uri din $LOG_FILE:"
+            echo "--------------------------------------"
+            if [ -f "$LOG_FILE" ]; then
+                cat "$LOG_FILE"
+            else
+                echo "Nu există log-uri de afișat."
+            fi
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        1)
+            echo "Actualizare Linux..."
+            log "Încep actualizarea Linux."
+            apt-get update >> "$LOG_FILE" 2>&1 && apt-get upgrade -y >> "$LOG_FILE" 2>&1
+            if [ $? -eq 0 ]; then
+                echo -e "\033[1;32mActualizare Linux completă.\033[0m"
+                log "Actualizare Linux completată."
+            else
+                echo -e "\033[1;31mEroare la actualizarea Linux.\033[0m"
+                log "Eroare la actualizarea Linux."
+            fi
+            echo -e "\n--- Log-ul operației ---"
+            tail -n 10 "$LOG_FILE"
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        2)
+            echo "Instalare Ollama..."
+            log "Încep instalarea Ollama."
+            curl -fsSL https://ollama.com/install.sh | sh >> "$LOG_FILE" 2>&1
+            if [ $? -eq 0 ]; then
+                echo -e "\033[1;32mOllama instalat cu succes.\033[0m"
+                log "Ollama instalat cu succes."
+            else
+                echo -e "\033[1;31mEroare la instalarea Ollama.\033[0m"
+                log "Eroare la instalarea Ollama."
+            fi
+            echo -e "\n--- Log-ul operației ---"
+            tail -n 10 "$LOG_FILE"
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        3)
+            echo "Instalare Docker..."
+            log "Încep instalarea Docker."
+            apt-get update >> "$LOG_FILE" 2>&1
+            apt-get install -y ca-certificates curl >> "$LOG_FILE" 2>&1
+            install -m 0755 -d /etc/apt/keyrings >> "$LOG_FILE" 2>&1
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc >> "$LOG_FILE" 2>&1
+            chmod a+r /etc/apt/keyrings/docker.asc
+            . /etc/os-release
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu ${UBUNTU_CODENAME:-$VERSION_CODENAME} stable" \
+                | tee /etc/apt/sources.list.d/docker.list > /dev/null
+            apt-get update >> "$LOG_FILE" 2>&1
+            apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin >> "$LOG_FILE" 2>&1
+            if [ $? -eq 0 ]; then
+                echo -e "\033[1;32mInstalare Docker completă.\033[0m"
+                log "Instalare Docker completată."
+            else
+                echo -e "\033[1;31mEroare la instalarea Docker.\033[0m"
+                log "Eroare la instalarea Docker."
+            fi
+            echo -e "\n--- Log-ul operației ---"
+            tail -n 10 "$LOG_FILE"
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        4)
+            echo "Instalare MilDocDMS..."
+            # Verifică dacă docker este instalat
+            if ! command -v docker &> /dev/null; then
+                echo -e "\033[1;31mDocker nu este instalat. Instalează Docker mai întâi (opțiunea 3).\033[0m"
+                read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+                continue
+            fi
+            log "Încep instalarea MilDocDMS."
+            # Determină directorul home al utilizatorului non-root care a apelat sudo
+            if [ -n "$SUDO_USER" ]; then
+                user_home=$(eval echo "~$SUDO_USER")
+            else
+                user_home="$HOME"
+            fi
+            mildocdms_dir="$user_home/mildocdms"
+            mkdir -p "$mildocdms_dir"
+            cd "$mildocdms_dir"
+            # Descarcă fișierele docker-compose.env și docker-compose.yml din GitHub
+            wget -O docker-compose.env https://raw.githubusercontent.com/CiubotaruBogdan/ubuntu-initializer/main/docker/docker-compose.env >> "$LOG_FILE" 2>&1
+            wget -O docker-compose.yml https://raw.githubusercontent.com/CiubotaruBogdan/ubuntu-initializer/main/docker/docker-compose.yml >> "$LOG_FILE" 2>&1
+            # Pornește stack-ul Docker Compose
+            docker compose up -d >> "$LOG_FILE" 2>&1
+            if [ $? -eq 0 ]; then
+                echo -e "\033[1;32mMilDocDMS a fost instalat și pornit cu succes.\033[0m"
+                log "MilDocDMS instalat cu succes."
+            else
+                echo -e "\033[1;31mEroare la instalarea MilDocDMS.\033[0m"
+                log "Eroare la instalarea MilDocDMS."
+            fi
+            echo -e "\n--- Log-ul operației ---"
+            tail -n 10 "$LOG_FILE"
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        q|Q)
+            echo "Ieșire..."
+            exit 0
+            ;;
+        *)
+            echo "Opțiune invalidă! Apasă orice tastă pentru a reveni la meniu..."
+            read -n1 -rsp $'\n'
+            ;;
     esac
-
-    echo -e "\nPress Enter to continue..."
-    read
 done
