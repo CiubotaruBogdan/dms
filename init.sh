@@ -109,7 +109,6 @@ while true; do
                 continue
             fi
             log "Încep instalarea MilDocDMS."
-            # Determină directorul home al utilizatorului non-root (cel care a folosit sudo)
             if [ -n "$SUDO_USER" ]; then
                 user_home=$(eval echo "~$SUDO_USER")
             else
@@ -119,13 +118,13 @@ while true; do
             mkdir -p "$mildocdms_dir"
             cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
             echo "Se descarcă docker-compose.env..."
-            wget -O docker-compose.env https://raw.githubusercontent.com/CiubotaruBogdan/ubuntu-initializer/main/docker/docker-compose.env >> "$LOG_FILE" 2>&1
+            wget -O docker-compose.env https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/docker-compose.env >> "$LOG_FILE" 2>&1
             if [ $? -ne 0 ]; then
                 echo -e "\033[1;31mEroare la descărcarea docker-compose.env.\033[0m"
                 continue
             fi
             echo "Se descarcă docker-compose.yml..."
-            wget -O docker-compose.yml https://raw.githubusercontent.com/CiubotaruBogdan/ubuntu-initializer/main/docker/docker-compose.yml >> "$LOG_FILE" 2>&1
+            wget -O docker-compose.yml https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/docker-compose.yml >> "$LOG_FILE" 2>&1
             if [ $? -ne 0 ]; then
                 echo -e "\033[1;31mEroare la descărcarea docker-compose.yml.\033[0m"
                 continue
@@ -135,11 +134,13 @@ while true; do
             if [ $? -eq 0 ]; then
                 echo -e "\033[1;32mMilDocDMS a fost instalat și pornit cu succes.\033[0m"
                 log "MilDocDMS instalat cu succes."
+                echo -e "\nStatusul containerelor MilDocDMS:"
+                docker compose ps
                 read -p "Doriți să urmăriți log-urile în timp real? (y/n): " follow_response
                 if [[ "$follow_response" =~ ^[Yy]$ ]]; then
                     echo -e "\n--- Urmărirea log-urilor în timp real ---"
                     echo "Apasă Ctrl+C pentru a reveni la meniu."
-                    docker compose logs -f
+                    docker compose logs --follow --tail=100
                 fi
             else
                 echo -e "\033[1;31mEroare la instalarea MilDocDMS.\033[0m"
