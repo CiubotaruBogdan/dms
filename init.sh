@@ -73,7 +73,7 @@ while true; do
                 echo -e "\033[1;31mEroare la actualizarea Linux.\033[0m"
                 log "Eroare la actualizarea Linux."
             fi
-            sudo apt install -y sssd-ad sssd-tools realmd adcli
+            sudo apt install -y sssd-ad sssd-tools realmd adcli python3-pip
             echo -e "\n--- Log-ul operației ---"
             tail -n 10 "$LOG_FILE"
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
