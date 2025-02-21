@@ -65,8 +65,11 @@ while true; do
         1)
             echo "Actualizare Linux..."
             log "Încep actualizarea Linux."
-            apt-get update >> "$LOG_FILE" 2>&1 && apt-get upgrade -y >> "$LOG_FILE" 2>&1
-            if [ $? -eq 0 ]; then
+            apt-get update 2>&1 | tee -a "$LOG_FILE"
+            update_exit=${PIPESTATUS[0]}
+            apt-get upgrade -y 2>&1 | tee -a "$LOG_FILE"
+            upgrade_exit=${PIPESTATUS[0]}
+            if [ $update_exit -eq 0 ] && [ $upgrade_exit -eq 0 ]; then
                 echo -e "\033[1;32mActualizare Linux completă.\033[0m"
                 log "Actualizare Linux completată."
             else
@@ -80,8 +83,9 @@ while true; do
         2)
             echo "Instalare Ollama..."
             log "Încep instalarea Ollama."
-            curl -fsSL https://ollama.com/install.sh | sh >> "$LOG_FILE" 2>&1
-            if [ $? -eq 0 ]; then
+            curl -fsSL https://ollama.com/install.sh 2>&1 | tee -a "$LOG_FILE" | sh
+            ollama_exit=${PIPESTATUS[2]}
+            if [ $ollama_exit -eq 0 ]; then
                 echo -e "\033[1;32mOllama instalat cu succes.\033[0m"
                 log "Ollama instalat cu succes."
             else
@@ -95,17 +99,22 @@ while true; do
         3)
             echo "Instalare Docker..."
             log "Încep instalarea Docker."
-            apt-get update >> "$LOG_FILE" 2>&1
-            apt-get install -y ca-certificates curl >> "$LOG_FILE" 2>&1
-            install -m 0755 -d /etc/apt/keyrings >> "$LOG_FILE" 2>&1
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc >> "$LOG_FILE" 2>&1
-            chmod a+r /etc/apt/keyrings/docker.asc
+            apt-get update 2>&1 | tee -a "$LOG_FILE"
+            update_exit=${PIPESTATUS[0]}
+            apt-get install -y ca-certificates curl 2>&1 | tee -a "$LOG_FILE"
+            install_exit=${PIPESTATUS[0]}
+            install -m 0755 -d /etc/apt/keyrings 2>&1 | tee -a "$LOG_FILE"
+            keyrings_exit=${PIPESTATUS[0]}
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc 2>&1 | tee -a "$LOG_FILE"
+            curl_exit=${PIPESTATUS[0]}
+            chmod a+r /etc/apt/keyrings/docker.asc 2>&1 | tee -a "$LOG_FILE"
             . /etc/os-release
             echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu ${UBUNTU_CODENAME:-$VERSION_CODENAME} stable" \
-                | tee /etc/apt/sources.list.d/docker.list > /dev/null
-            apt-get update >> "$LOG_FILE" 2>&1
-            apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin >> "$LOG_FILE" 2>&1
-            if [ $? -eq 0 ]; then
+                | tee /etc/apt/sources.list.d/docker.list 2>&1 | tee -a "$LOG_FILE"
+            apt-get update 2>&1 | tee -a "$LOG_FILE"
+            apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 2>&1 | tee -a "$LOG_FILE"
+            docker_install_exit=${PIPESTATUS[0]}
+            if [ $update_exit -eq 0 ] && [ $install_exit -eq 0 ] && [ $keyrings_exit -eq 0 ] && [ $curl_exit -eq 0 ] && [ $docker_install_exit -eq 0 ]; then
                 echo -e "\033[1;32mInstalare Docker completă.\033[0m"
                 log "Instalare Docker completată."
             else
@@ -130,37 +139,33 @@ while true; do
                 user_home="$HOME"
             fi
             mildocdms_dir="$user_home/mildocdms"
-            mkdir -p "$mildocdms_dir"
+            mkdir -p "$mildocdms_dir" 2>&1 | tee -a "$LOG_FILE"
             cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
-            # Șterge fișierele existente pentru a forța descărcarea celor noi
-            rm -f docker-compose.env docker-compose.yml
+            rm -f docker-compose.env docker-compose.yml 2>&1 | tee -a "$LOG_FILE"
             echo "Se descarcă docker-compose.env..."
-            wget -O docker-compose.env https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/docker/docker-compose.env >> "$LOG_FILE" 2>&1
-            if [ $? -ne 0 ]; then
+            wget -O docker-compose.env https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/docker/docker-compose.env 2>&1 | tee -a "$LOG_FILE"
+            env_exit=${PIPESTATUS[0]}
+            if [ $env_exit -ne 0 ]; then
                 echo -e "\033[1;31mEroare la descărcarea docker-compose.env.\033[0m"
                 continue
             fi
             echo "Se descarcă docker-compose.yml..."
-            wget -O docker-compose.yml https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/docker/docker-compose.yml >> "$LOG_FILE" 2>&1
-            if [ $? -ne 0 ]; then
+            wget -O docker-compose.yml https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/docker/docker-compose.yml 2>&1 | tee -a "$LOG_FILE"
+            yml_exit=${PIPESTATUS[0]}
+            if [ $yml_exit -ne 0 ]; then
                 echo -e "\033[1;31mEroare la descărcarea docker-compose.yml.\033[0m"
                 continue
             fi
             echo "Pornește MilDocDMS cu docker compose up -d..."
-            docker compose up -d >> "$LOG_FILE" 2>&1
-            if [ $? -eq 0 ]; then
+            docker compose up -d 2>&1 | tee -a "$LOG_FILE"
+            docker_up_exit=${PIPESTATUS[0]}
+            if [ $docker_up_exit -eq 0 ]; then
                 echo -e "\033[1;32mMilDocDMS a fost instalat și pornit cu succes.\033[0m"
                 log "MilDocDMS instalat cu succes."
                 echo -e "\nStatusul containerelor MilDocDMS:"
-                docker compose ps
+                docker compose ps 2>&1 | tee -a "$LOG_FILE"
                 echo -e "\n--- Urmărirea log-urilor în timp real ---"
-                if command -v gnome-terminal &> /dev/null; then
-                    gnome-terminal -- bash -c "docker compose logs --follow --tail=100; exec bash"
-                elif command -v xterm &> /dev/null; then
-                    xterm -e "docker compose logs --follow --tail=100"
-                else
-                    docker compose logs --follow --tail=100
-                fi
+                docker compose logs --follow --tail=100
             else
                 echo -e "\033[1;31mEroare la instalarea MilDocDMS.\033[0m"
                 log "Eroare la instalarea MilDocDMS."
@@ -182,8 +187,9 @@ while true; do
                     continue
                 fi
                 cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
-                docker compose down >> "$LOG_FILE" 2>&1
-                if [ $? -eq 0 ]; then
+                docker compose down 2>&1 | tee -a "$LOG_FILE"
+                down_exit=${PIPESTATUS[0]}
+                if [ $down_exit -eq 0 ]; then
                     echo -e "\033[1;32mMilDocDMS a fost dezinstalat cu succes.\033[0m"
                     log "MilDocDMS dezinstalat cu succes."
                 else
@@ -207,20 +213,15 @@ while true; do
                 continue
             fi
             cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
-            docker compose up -d >> "$LOG_FILE" 2>&1
-            if [ $? -eq 0 ]; then
+            docker compose up -d 2>&1 | tee -a "$LOG_FILE"
+            mount_exit=${PIPESTATUS[0]}
+            if [ $mount_exit -eq 0 ]; then
                 echo -e "\033[1;32mContainerul MilDocDMS a fost montat cu succes.\033[0m"
                 log "Container MilDocDMS montat cu succes."
                 echo -e "\nStatusul containerelor MilDocDMS:"
-                docker compose ps
+                docker compose ps 2>&1 | tee -a "$LOG_FILE"
                 echo -e "\n--- Urmărirea log-urilor în timp real ---"
-                if command -v gnome-terminal &> /dev/null; then
-                    gnome-terminal -- bash -c "docker compose logs --follow --tail=100; exec bash"
-                elif command -v xterm &> /dev/null; then
-                    xterm -e "docker compose logs --follow --tail=100"
-                else
-                    docker compose logs --follow --tail=100
-                fi
+                docker compose logs --follow --tail=100
             else
                 echo -e "\033[1;31mEroare la montarea containerului MilDocDMS.\033[0m"
                 log "Eroare la montarea containerului MilDocDMS."
@@ -242,7 +243,7 @@ while true; do
                     continue
                 fi
                 cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
-                docker compose run --rm webserver createsuperuser
+                docker compose run --rm webserver createsuperuser 2>&1 | tee -a "$LOG_FILE"
                 read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             fi
             ;;
@@ -254,7 +255,7 @@ while true; do
                     echo "Nu s-a găsit containerul webserver."
                 else
                     echo "Intrare în containerul $container_name..."
-                    docker exec -it "$container_name" bash
+                    docker exec -it "$container_name" bash 2>&1 | tee -a "$LOG_FILE"
                 fi
                 read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             fi
