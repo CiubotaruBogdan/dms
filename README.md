@@ -8,7 +8,7 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 - Conexiune la internet
 - Pachete necesare:
   ```bash
-  sudo apt install -y wget dos2unix xrdp
+  sudo apt install -y wget dos2unix xrdp curl
   ```
 
 ## Instalare și Rulare
