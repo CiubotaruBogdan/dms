@@ -41,6 +41,7 @@ EOF
     systemctl restart xrdp 2>&1 | tee -a "$LOG_FILE"
 }
 
+
 # Verificare drepturi root
 if [[ $EUID -ne 0 ]]; then
     echo "Acest script trebuie rulat ca root!"
