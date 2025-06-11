@@ -26,7 +26,16 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 - **01. Șterge log-uri**
   Șterge (trunchează) fișierul de loguri pentru a începe o nouă sesiune de diagnosticare
 - **02. Alătură sistemul la domeniu**
-  Configurează integrarea în domeniul Active Directory folosind `realm join`.
+  Configurează integrarea în domeniul Active Directory folosind `realm join` și
+  activează autentificarea utilizatorilor de domeniu. Scriptul rulează
+  `realm permit --all` și `pam-auth-update --enable mkhomedir --force` pentru a
+  permite login-ul oricărui cont de domeniu și pentru a crea automat folderele
+  home la prima autentificare. Scriptul acordă de asemenea drepturi sudo
+  membrilor grupului **Domain Admins** și configurează `xrdp` pentru conectări
+  remote cu utilizatori de domeniu.
+- **03. Configurează acces domeniu și xrdp**
+  Permite autentificarea utilizatorilor de domeniu și configurează accesul
+  remote prin `xrdp` pentru sisteme deja alăturate domeniului
 
 ### Instalare și Actualizare
 - **1. Actualizează Linux**
