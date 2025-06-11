@@ -339,7 +339,7 @@ while true; do
             if ! dpkg -s samba >/dev/null 2>&1; then
                 apt-get install -y samba 2>&1 | tee -a "$LOG_FILE"
                 samba_install_exit=${PIPESTATUS[0]}
-                if [ $samba_install_exit -ne 0 ]; then
+                if [ "$samba_install_exit" -ne 0 ]; then
                     echo -e "\033[1;31mEroare la instalarea Samba.\033[0m"
                     log "Eroare la instalarea Samba."
                     read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
@@ -369,21 +369,23 @@ while true; do
 [originals]
    path = $originals_path
    browseable = yes
-   writable = yes
+   writable = no
+   read only = yes
    guest ok = yes
-   read only = no
+   public = yes
 
 [archive]
    path = $archive_path
    browseable = yes
-   writable = yes
+   writable = no
+   read only = yes
    guest ok = yes
-   read only = no
+   public = yes
 EOF
             fi
-            systemctl restart smbd 2>&1 | tee -a "$LOG_FILE"
-            restart_exit=${PIPESTATUS[0]}
-            if [ $restart_exit -eq 0 ] && [ $samba_install_exit -eq 0 ]; then
+            systemctl reload smbd 2>&1 | tee -a "$LOG_FILE"
+            reload_exit=${PIPESTATUS[0]}
+            if [ "$reload_exit" -eq 0 ] && [ "$samba_install_exit" -eq 0 ]; then
                 host_ip=$(hostname -I | awk '{print $1}')
                 echo -e "\033[1;32mSamba configurat. Accesați share-urile de pe Windows:\033[0m"
                 echo -e "  \\${host_ip}\\originals"
