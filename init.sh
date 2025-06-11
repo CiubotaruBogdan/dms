@@ -60,6 +60,10 @@ while true; do
     # Opțiunea 7 este disponibilă doar când MilDocDMS este instalat
     if [ "$mildocdms_installed" -eq 1 ]; then
         echo "7. Mount container MilDocDMS (docker compose up -d)"
+    echo "5. Dezinstalează MilDocDMS (docker compose down)"
+    # Opțiunea 6 este disponibilă doar când MilDocDMS este instalat
+    if [ "$mildocdms_installed" -eq 1 ]; then
+        echo "6. Mount container MilDocDMS (docker compose up -d)"
     fi
     if [ "$web_running" -eq 1 ]; then
         echo "8. Creare super utilizator (createsuperuser)"
