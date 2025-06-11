@@ -379,8 +379,7 @@ while true; do
    writable = yes
    guest ok = yes
    read only = no
-
-EOF
+    EOF
             fi
             systemctl restart smbd 2>&1 | tee -a "$LOG_FILE"
             restart_exit=${PIPESTATUS[0]}
