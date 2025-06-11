@@ -164,6 +164,7 @@ while true; do
             fi
             mildocdms_dir="$user_home/mildocdms"
             mkdir -p "$mildocdms_dir" 2>&1 | tee -a "$LOG_FILE"
+            mkdir -p "$mildocdms_dir/media/documents/originals" "$mildocdms_dir/media/documents/archive" 2>&1 | tee -a "$LOG_FILE"
             cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
             rm -f docker-compose.env docker-compose.yml 2>&1 | tee -a "$LOG_FILE"
             echo "Se descarcă docker-compose.env..."
