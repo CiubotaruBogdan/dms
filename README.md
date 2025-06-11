@@ -24,24 +24,24 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 ## Funcționalități
 
 ### Gestionare Loguri
-- **00. Afișează log-uri**  
+- **00. Afișează log-uri**
   Afișează conținutul fișierului de loguri situat în `/tmp/script_intretinere.log`
-- **01. Șterge log-uri**  
+- **01. Șterge log-uri**
   Șterge (trunchează) fișierul de loguri pentru a începe o nouă sesiune de diagnosticare
 
 ### Instalare și Actualizare
-- **1. Actualizează Linux**  
+- **1. Actualizează Linux**
   Actualizează sistemul folosind `apt-get update` și `apt-get upgrade -y`
-- **2. Instalează Ollama**  
+- **2. Instalează Ollama**
   Instalează platforma Ollama folosind scriptul oficial de instalare
-- **3. Instalează Docker**  
+- **3. Instalează Docker**
   Configurează și instalează Docker și componentele necesare:
   - docker-ce
   - docker-ce-cli
   - containerd.io
   - docker-buildx-plugin
   - docker-compose-plugin
-- **4. Instalează MilDocDMS**  
+- **4. Instalează MilDocDMS**
   Instalează și configurează MilDocDMS:
   - Creează directorul de lucru în home-ul utilizatorului
   - Descarcă și configurează fișierele docker-compose
