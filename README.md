@@ -33,6 +33,9 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
   home la prima autentificare. Scriptul acordă de asemenea drepturi sudo
   membrilor grupului **Domain Admins** și configurează `xrdp` pentru conectări
   remote cu utilizatori de domeniu.
+- **03. Configurează acces domeniu și xrdp**
+  Permite autentificarea utilizatorilor de domeniu și configurează accesul
+  remote prin `xrdp` pentru sisteme deja alăturate domeniului
 
 ### Instalare și Actualizare
 - **1. Actualizează Linux**
