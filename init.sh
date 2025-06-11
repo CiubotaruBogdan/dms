@@ -33,7 +33,11 @@ configure_domain_access() {
         echo "Se instalează xrdp pentru conectarea remote..."
         apt-get install -y xrdp 2>&1 | tee -a "$LOG_FILE"
     fi
-    echo "allowed_users=anybody" > /etc/X11/Xwrapper.config
+    adduser xrdp ssl-cert 2>&1 | tee -a "$LOG_FILE"
+    cat > /etc/X11/Xwrapper.config <<'EOF'
+allowed_users=anybody
+needs_root_rights=yes
+EOF
     systemctl restart xrdp 2>&1 | tee -a "$LOG_FILE"
 }
 

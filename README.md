@@ -32,7 +32,9 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
   permite login-ul oricărui cont de domeniu și pentru a crea automat folderele
   home la prima autentificare. Scriptul acordă de asemenea drepturi sudo
   membrilor grupului **Domain Admins** și configurează `xrdp` pentru conectări
-  remote cu utilizatori de domeniu.
+  remote cu utilizatori de domeniu. Scriptul adaugă contul `xrdp` în grupul
+  `ssl-cert` și rescrie `/etc/X11/Xwrapper.config` cu `needs_root_rights=yes`
+  pentru a evita ecranul negru la reconectare.
 - **03. Configurează acces domeniu și xrdp**
   Permite autentificarea utilizatorilor de domeniu și configurează accesul
   remote prin `xrdp` pentru sisteme deja alăturate domeniului
