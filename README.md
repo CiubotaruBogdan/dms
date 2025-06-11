@@ -46,9 +46,9 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
   - Oferă opțiunea de urmărire log-uri în timp real
 
 ### Gestionare Container MilDocDMS
-- **5. Alătură sistemul la domeniu**
+- **02. Alătură sistemul la domeniu**
   Configurează integrarea în domeniul Active Directory folosind `realm join`.
-- **6. Dezinstalează MilDocDMS**
+- **6. Dezinstalează complet MilDocDMS**
   Elimină containerele, volumele și directorul MilDocDMS (dacă există). Curăță orice resurse Docker rămase chiar dacă folderul a fost șters, inclusiv volumele cu baza de date și fișierele media.
 - **7. Mount container MilDocDMS**
   Pornește containerele MilDocDMS folosind `docker compose up -d` (disponibil doar după instalare)
@@ -58,8 +58,6 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
   Deschide un shell în containerul webserver pentru operațiuni avansate
 - **10. Afișează path-ul folderului MilDocDMS**
   Arată locația instalării MilDocDMS pe sistemul local
-- **11. Instalează și configurează Samba și partajează foldere**
-  Permite partajarea folderelor `originals` și `archive` prin rețeaua locală. Opțiunea este disponibilă doar după alăturarea la domeniu.
 
 ## Monitorizare și Logging
 
@@ -74,19 +72,15 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 - Se recomandă instalarea în ordinea prezentată în meniu (1-4) pentru dependențe
 - La instalarea MilDocDMS, asigurați-vă că Docker este instalat și funcțional
 
-## Accesare din Windows prin Samba
+## Accesare foldere din sistemul host
 
-După rularea opțiunii **11. Instalează și configurează Samba și partajează foldere**, directoarele
-`originals` și `archive` din MilDocDMS devin disponibile în rețea. Pentru a le
-accesa de pe Windows:
+După instalarea aplicației, documentele sunt stocate în directorul `~/mildocdms`. Puteți accesa fișierele originale și arhivate la:
 
-1. Aflați adresa IP a serverului Linux cu `hostname -I`.
-2. Deschideți Explorer și introduceți calea UNC corespunzătoare, de exemplu:
-   ```
-   \\<ip-server>\originals
-   \\<ip-server>\archive
-   ```
-3. Puteți crea shortcut-uri sau mapări la aceste locații pentru acces rapid.
+```bash
+~/mildocdms/media/documents/originals
+~/mildocdms/media/documents/archive
+```
+
 
 ## Contribuții
 
