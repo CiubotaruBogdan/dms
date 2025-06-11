@@ -51,6 +51,9 @@ while true; do
     echo "5. Dezinstalează MilDocDMS (docker compose down)"
     # Opțiunea 6 este disponibilă doar când MilDocDMS este instalat
     if [ "$mildocdms_installed" -eq 1 ]; then
+=======
+    if [ "$mildocdms_installed" -eq 1 ]; then
+        echo "5. Dezinstalează MilDocDMS (docker compose down)"
         echo "6. Mount container MilDocDMS (docker compose up -d)"
     fi
     if [ "$web_running" -eq 1 ]; then
@@ -218,6 +221,22 @@ while true; do
                 if [ $rm_exit -eq 0 ]; then
                     echo -e "\033[1;32mMilDocDMS a fost dezinstalat și toate fișierele au fost șterse.\033[0m"
                     log "MilDocDMS și datele au fost șterse."
+=======
+            if [ "$mildocdms_installed" -eq 1 ]; then
+                echo "Dezinstalare MilDocDMS (docker compose down -v)..."
+                cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
+                docker compose down -v 2>&1 | tee -a "$LOG_FILE"
+                down_exit=${PIPESTATUS[0]}
+                if [ $down_exit -eq 0 ]; then
+                    rm -rf "$mildocdms_dir" 2>&1 | tee -a "$LOG_FILE"
+                    rm_exit=${PIPESTATUS[0]}
+                    if [ $rm_exit -eq 0 ]; then
+                        echo -e "\033[1;32mMilDocDMS a fost dezinstalat și toate fișierele au fost șterse.\033[0m"
+                        log "MilDocDMS și datele au fost șterse."
+                    else
+                        echo -e "\033[1;31mDezinstalarea a reușit, dar nu am putut șterge fișierele.\033[0m"
+                        log "Eroare la ștergerea fișierelor MilDocDMS."
+                    fi
                 else
                     echo -e "\033[1;31mContainerele au fost oprite, dar nu am putut șterge fișierele.\033[0m"
                     log "Eroare la ștergerea fișierelor MilDocDMS."

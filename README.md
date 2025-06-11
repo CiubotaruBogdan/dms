@@ -52,6 +52,8 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 - **5. Dezinstalează MilDocDMS**
   Elimină containerele, volumele și directorul MilDocDMS (dacă există).
   Curăță orice resurse Docker rămase chiar dacă folderul a fost șters, inclusiv volumele cu baza de date și fișierele media.
+=======
+  Oprește și elimină containerele și șterge toate datele și fișierele MilDocDMS
 - **6. Mount container MilDocDMS**
   Pornește containerele MilDocDMS folosind `docker compose up -d` (disponibil doar după instalare)
 - **7. Creare super utilizator**  
