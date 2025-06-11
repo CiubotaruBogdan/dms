@@ -51,11 +51,11 @@ while true; do
     echo "======================================"
     echo "00. Afișează log-uri"
     echo "01. Șterge log-uri"
+    echo "02. Alătură sistemul la domeniu"
     echo "1. Actualizează Linux"
     echo "2. Instalează Ollama"
     echo "3. Instalează Docker"
     echo "4. Instalează MilDocDMS"
-    echo "02. Alătură sistemul la domeniu"
     if [ "$mildocdms_installed" -eq 1 ]; then
         echo "6. Dezinstalează complet MilDocDMS (oprește și șterge datele)"
         echo "7. Mount container MilDocDMS (docker compose up -d)"
@@ -83,6 +83,31 @@ while true; do
         "01")
             > "$LOG_FILE"
             echo "Log-uri șterse."
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        "02")
+            echo "Alăturare la domeniu..."
+            if ! command -v realm >/dev/null; then
+                echo "Se instalează pachetele necesare pentru domeniu..."
+                apt-get install -y realmd sssd sssd-tools adcli samba-common 2>&1 | tee -a "$LOG_FILE"
+            fi
+            if [ $domain_joined -eq 1 ]; then
+                echo "Sistemul este deja membru al unui domeniu."
+                realm list 2>&1 | tee -a "$LOG_FILE"
+                read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+                continue
+            fi
+            read -p "Domeniu (exemplu example.com): " domain_name
+            read -p "Utilizator administrativ: " domain_user
+            realm join "$domain_name" -U "$domain_user" 2>&1 | tee -a "$LOG_FILE"
+            join_exit=${PIPESTATUS[0]}
+            if [ $join_exit -eq 0 ]; then
+                echo -e "\033[1;32mSistemul a fost alăturat cu succes domeniului $domain_name.\033[0m"
+                log "Sistem alăturat domeniului $domain_name."
+            else
+                echo -e "\033[1;31mEroare la alăturarea la domeniu.\033[0m"
+                log "Eroare alăturare domeniu."
+            fi
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
         1)
@@ -193,31 +218,6 @@ while true; do
             else
                 echo -e "\033[1;31mEroare la instalarea MilDocDMS.\033[0m"
                 log "Eroare la instalarea MilDocDMS."
-            fi
-            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
-            ;;
-        "02")
-            echo "Alăturare la domeniu..."
-            if ! command -v realm >/dev/null; then
-                echo "Se instalează pachetele necesare pentru domeniu..."
-                apt-get install -y realmd sssd sssd-tools adcli samba-common 2>&1 | tee -a "$LOG_FILE"
-            fi
-            if [ $domain_joined -eq 1 ]; then
-                echo "Sistemul este deja membru al unui domeniu."
-                realm list 2>&1 | tee -a "$LOG_FILE"
-                read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
-                continue
-            fi
-            read -p "Domeniu (exemplu example.com): " domain_name
-            read -p "Utilizator administrativ: " domain_user
-            realm join "$domain_name" -U "$domain_user" 2>&1 | tee -a "$LOG_FILE"
-            join_exit=${PIPESTATUS[0]}
-            if [ $join_exit -eq 0 ]; then
-                echo -e "\033[1;32mSistemul a fost alăturat cu succes domeniului $domain_name.\033[0m"
-                log "Sistem alăturat domeniului $domain_name."
-            else
-                echo -e "\033[1;31mEroare la alăturarea la domeniu.\033[0m"
-                log "Eroare alăturare domeniu."
             fi
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;

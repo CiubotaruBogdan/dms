@@ -25,6 +25,8 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
   Afișează conținutul fișierului de loguri situat în `/tmp/script_intretinere.log`
 - **01. Șterge log-uri**
   Șterge (trunchează) fișierul de loguri pentru a începe o nouă sesiune de diagnosticare
+- **02. Alătură sistemul la domeniu**
+  Configurează integrarea în domeniul Active Directory folosind `realm join`.
 
 ### Instalare și Actualizare
 - **1. Actualizează Linux**
@@ -46,8 +48,6 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
   - Oferă opțiunea de urmărire log-uri în timp real
 
 ### Gestionare Container MilDocDMS
-- **02. Alătură sistemul la domeniu**
-  Configurează integrarea în domeniul Active Directory folosind `realm join`.
 - **6. Dezinstalează complet MilDocDMS**
   Elimină containerele, volumele și directorul MilDocDMS (dacă există). Curăță orice resurse Docker rămase chiar dacă folderul a fost șters, inclusiv volumele cu baza de date și fișierele media.
 - **7. Mount container MilDocDMS**
