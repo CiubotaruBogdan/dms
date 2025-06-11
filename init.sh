@@ -26,6 +26,19 @@ while true; do
         web_running=0
     fi
 
+    # Determină dacă MilDocDMS este instalat
+    if [ -n "$SUDO_USER" ]; then
+        user_home=$(eval echo "~$SUDO_USER")
+    else
+        user_home="$HOME"
+    fi
+    mildocdms_dir="$user_home/mildocdms"
+    if [ -d "$mildocdms_dir" ]; then
+        mildocdms_installed=1
+    else
+        mildocdms_installed=0
+    fi
+
     echo "======================================"
     echo "      Script de instalare MilDocDMS"
     echo "======================================"
@@ -35,9 +48,11 @@ while true; do
     echo "2. Instalează Ollama"
     echo "3. Instalează Docker"
     echo "4. Instalează MilDocDMS"
-    echo "6. Mount container MilDocDMS (docker compose up -d)"
-    if [ "$web_running" -eq 1 ]; then
+    if [ "$mildocdms_installed" -eq 1 ]; then
         echo "5. Dezinstalează MilDocDMS (docker compose down)"
+        echo "6. Mount container MilDocDMS (docker compose up -d)"
+    fi
+    if [ "$web_running" -eq 1 ]; then
         echo "7. Creare super utilizator (createsuperuser)"
         echo "8. Accesează shell container webserver"
         echo "9. Afișează path-ul folderului MilDocDMS"
@@ -174,25 +189,21 @@ while true; do
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
         5)
-            if [ "$web_running" -eq 1 ]; then
-                echo "Dezinstalare MilDocDMS (docker compose down)..."
-                if [ -n "$SUDO_USER" ]; then
-                    user_home=$(eval echo "~$SUDO_USER")
-                else
-                    user_home="$HOME"
-                fi
-                mildocdms_dir="$user_home/mildocdms"
-                if [ ! -d "$mildocdms_dir" ]; then
-                    echo "Directorul MilDocDMS nu există. Probabil nu a fost instalat."
-                    read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
-                    continue
-                fi
+            if [ "$mildocdms_installed" -eq 1 ]; then
+                echo "Dezinstalare MilDocDMS (docker compose down -v)..."
                 cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
-                docker compose down 2>&1 | tee -a "$LOG_FILE"
+                docker compose down -v 2>&1 | tee -a "$LOG_FILE"
                 down_exit=${PIPESTATUS[0]}
                 if [ $down_exit -eq 0 ]; then
-                    echo -e "\033[1;32mMilDocDMS a fost dezinstalat cu succes.\033[0m"
-                    log "MilDocDMS dezinstalat cu succes."
+                    rm -rf "$mildocdms_dir" 2>&1 | tee -a "$LOG_FILE"
+                    rm_exit=${PIPESTATUS[0]}
+                    if [ $rm_exit -eq 0 ]; then
+                        echo -e "\033[1;32mMilDocDMS a fost dezinstalat și toate fișierele au fost șterse.\033[0m"
+                        log "MilDocDMS și datele au fost șterse."
+                    else
+                        echo -e "\033[1;31mDezinstalarea a reușit, dar nu am putut șterge fișierele.\033[0m"
+                        log "Eroare la ștergerea fișierelor MilDocDMS."
+                    fi
                 else
                     echo -e "\033[1;31mEroare la dezinstalarea MilDocDMS.\033[0m"
                     log "Eroare la dezinstalarea MilDocDMS."
@@ -202,13 +213,7 @@ while true; do
             ;;
         6)
             echo "Mount container MilDocDMS (docker compose up -d)..."
-            if [ -n "$SUDO_USER" ]; then
-                user_home=$(eval echo "~$SUDO_USER")
-            else
-                user_home="$HOME"
-            fi
-            mildocdms_dir="$user_home/mildocdms"
-            if [ ! -d "$mildocdms_dir" ]; then
+            if [ "$mildocdms_installed" -eq 0 ]; then
                 echo "Directorul MilDocDMS nu există. Instalează MilDocDMS mai întâi (opțiunea 4)."
                 read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
                 continue

@@ -49,10 +49,10 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
   - Oferă opțiunea de urmărire log-uri în timp real
 
 ### Gestionare Container MilDocDMS
-- **5. Dezinstalează MilDocDMS**  
-  Oprește și elimină containerele MilDocDMS (disponibil când serviciul rulează)
-- **6. Mount container MilDocDMS**  
-  Pornește containerele MilDocDMS folosind `docker compose up -d`
+- **5. Dezinstalează MilDocDMS**
+  Oprește și elimină containerele și șterge toate datele și fișierele MilDocDMS
+- **6. Mount container MilDocDMS**
+  Pornește containerele MilDocDMS folosind `docker compose up -d` (disponibil doar după instalare)
 - **7. Creare super utilizator**  
   Creează un cont de administrator pentru interfața web (disponibil când serviciul rulează)
 - **8. Accesează shell container webserver**  
