@@ -48,6 +48,10 @@ while true; do
     echo "2. Instalează Ollama"
     echo "3. Instalează Docker"
     echo "4. Instalează MilDocDMS"
+    echo "5. Dezinstalează MilDocDMS (docker compose down)"
+    # Opțiunea 6 este disponibilă doar când MilDocDMS este instalat
+    if [ "$mildocdms_installed" -eq 1 ]; then
+=======
     if [ "$mildocdms_installed" -eq 1 ]; then
         echo "5. Dezinstalează MilDocDMS (docker compose down)"
         echo "6. Mount container MilDocDMS (docker compose up -d)"
@@ -189,6 +193,35 @@ while true; do
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
         5)
+            echo "Dezinstalare MilDocDMS (docker compose down -v)..."
+            if [ -d "$mildocdms_dir" ]; then
+                cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
+                docker compose down -v 2>&1 | tee -a "$LOG_FILE"
+                down_exit=${PIPESTATUS[0]}
+                cd - >/dev/null
+            else
+                echo "Directorul MilDocDMS nu există. Încerc să opresc containerele existente..."
+                containers=$(docker ps -aq --filter label=com.docker.compose.project=mildocdms)
+                if [ -n "$containers" ]; then
+                    docker rm -f $containers 2>&1 | tee -a "$LOG_FILE"
+                fi
+                volumes=$(docker volume ls -q --filter label=com.docker.compose.project=mildocdms)
+                if [ -n "$volumes" ]; then
+                    docker volume rm $volumes 2>&1 | tee -a "$LOG_FILE"
+                fi
+                networks=$(docker network ls -q --filter label=com.docker.compose.project=mildocdms)
+                if [ -n "$networks" ]; then
+                    docker network rm $networks 2>&1 | tee -a "$LOG_FILE"
+                fi
+                down_exit=0
+            fi
+            if [ $down_exit -eq 0 ]; then
+                rm -rf "$mildocdms_dir" 2>&1 | tee -a "$LOG_FILE"
+                rm_exit=${PIPESTATUS[0]}
+                if [ $rm_exit -eq 0 ]; then
+                    echo -e "\033[1;32mMilDocDMS a fost dezinstalat și toate fișierele au fost șterse.\033[0m"
+                    log "MilDocDMS și datele au fost șterse."
+=======
             if [ "$mildocdms_installed" -eq 1 ]; then
                 echo "Dezinstalare MilDocDMS (docker compose down -v)..."
                 cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
@@ -205,11 +238,14 @@ while true; do
                         log "Eroare la ștergerea fișierelor MilDocDMS."
                     fi
                 else
-                    echo -e "\033[1;31mEroare la dezinstalarea MilDocDMS.\033[0m"
-                    log "Eroare la dezinstalarea MilDocDMS."
+                    echo -e "\033[1;31mContainerele au fost oprite, dar nu am putut șterge fișierele.\033[0m"
+                    log "Eroare la ștergerea fișierelor MilDocDMS."
                 fi
-                read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            else
+                echo -e "\033[1;31mEroare la dezinstalarea MilDocDMS.\033[0m"
+                log "Eroare la dezinstalarea MilDocDMS."
             fi
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
         6)
             echo "Mount container MilDocDMS (docker compose up -d)..."
