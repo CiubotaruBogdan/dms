@@ -10,6 +10,37 @@ log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
 }
 
+# Configurează permisiunile necesare autentificării utilizatorilor de domeniu
+configure_domain_access() {
+    local domain_name="$1"
+    if [ -z "$domain_name" ]; then
+        domain_name=$(realm list 2>/dev/null | awk '/realm-name/ {print $2}' | head -n1)
+        if [ -z "$domain_name" ]; then
+            echo "Nu s-a putut determina numele domeniului."
+            return 1
+        fi
+    fi
+    echo "Se permite autentificarea utilizatorilor de domeniu..."
+    realm permit --all 2>&1 | tee -a "$LOG_FILE"
+    pam-auth-update --enable mkhomedir --force 2>&1 | tee -a "$LOG_FILE"
+    echo "Configurare privilegii pentru grupul 'Domain Admins'..."
+    domain_upper=$(echo "$domain_name" | tr '[:lower:]' '[:upper:]')
+    sudoers_file="/etc/sudoers.d/domain_admins"
+    echo "%${domain_upper}\\\\Domain Admins ALL=(ALL:ALL) ALL" > "$sudoers_file"
+    chmod 440 "$sudoers_file"
+    log "Drepturi sudo acordate grupului Domain Admins."
+    if ! dpkg -l | grep -q xrdp; then
+        echo "Se instalează xrdp pentru conectarea remote..."
+        apt-get install -y xrdp 2>&1 | tee -a "$LOG_FILE"
+    fi
+    adduser xrdp ssl-cert 2>&1 | tee -a "$LOG_FILE"
+    cat > /etc/X11/Xwrapper.config <<'EOF'
+allowed_users=anybody
+needs_root_rights=yes
+EOF
+    systemctl restart xrdp 2>&1 | tee -a "$LOG_FILE"
+}
+
 # Verificare drepturi root
 if [[ $EUID -ne 0 ]]; then
     echo "Acest script trebuie rulat ca root!"
@@ -52,6 +83,7 @@ while true; do
     echo "00. Afișează log-uri"
     echo "01. Șterge log-uri"
     echo "02. Alătură sistemul la domeniu"
+    echo "03. Configurează acces domeniu și xrdp"
     echo "1. Actualizează Linux"
     echo "2. Instalează Ollama"
     echo "3. Instalează Docker"
@@ -104,9 +136,18 @@ while true; do
             if [ $join_exit -eq 0 ]; then
                 echo -e "\033[1;32mSistemul a fost alăturat cu succes domeniului $domain_name.\033[0m"
                 log "Sistem alăturat domeniului $domain_name."
+                configure_domain_access "$domain_name"
             else
                 echo -e "\033[1;31mEroare la alăturarea la domeniu.\033[0m"
                 log "Eroare alăturare domeniu."
+            fi
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        "03")
+            if [ $domain_joined -eq 0 ]; then
+                echo "Sistemul nu este membru al unui domeniu. Folosește opțiunea 02 pentru alăturare."
+            else
+                configure_domain_access
             fi
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
