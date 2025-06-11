@@ -49,6 +49,7 @@ while true; do
     echo "3. Instalează Docker"
     echo "4. Instalează MilDocDMS"
     echo "5. Dezinstalează MilDocDMS (docker compose down)"
+    # Opțiunea 6 este disponibilă doar când MilDocDMS este instalat
     if [ "$mildocdms_installed" -eq 1 ]; then
         echo "6. Mount container MilDocDMS (docker compose up -d)"
     fi
