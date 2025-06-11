@@ -26,7 +26,7 @@ configure_domain_access() {
     echo "Configurare privilegii pentru grupul 'Domain Admins'..."
     domain_upper=$(echo "$domain_name" | tr '[:lower:]' '[:upper:]')
     sudoers_file="/etc/sudoers.d/domain_admins"
-    echo "%${domain_upper}\\\\Domain Admins ALL=(ALL:ALL) ALL" > "$sudoers_file"
+    echo "\"%${domain_upper}\\\\Domain Admins\" ALL=(ALL:ALL) ALL" > "$sudoers_file"
     chmod 440 "$sudoers_file"
     log "Drepturi sudo acordate grupului Domain Admins."
     if ! dpkg -l | grep -q xrdp; then
@@ -40,7 +40,6 @@ needs_root_rights=yes
 EOF
     systemctl restart xrdp 2>&1 | tee -a "$LOG_FILE"
 }
-
 
 # Verificare drepturi root
 if [[ $EUID -ne 0 ]]; then
