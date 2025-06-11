@@ -37,6 +37,7 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
   Permite autentificarea utilizatorilor de domeniu și configurează accesul
   remote prin `xrdp` pentru sisteme deja alăturate domeniului
 
+
 ### Instalare și Actualizare
 - **1. Actualizează Linux**
   Actualizează sistemul folosind `apt-get update` și `apt-get upgrade -y`
