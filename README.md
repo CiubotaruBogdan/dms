@@ -57,8 +57,10 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
   Creează un cont de administrator pentru interfața web (disponibil când serviciul rulează)
 - **8. Accesează shell container webserver**  
   Deschide un shell în containerul webserver pentru operațiuni avansate
-- **9. Afișează path-ul folderului MilDocDMS**  
+- **9. Afișează path-ul folderului MilDocDMS**
   Arată locația instalării MilDocDMS pe sistemul local
+- **10. Instalează și configurează Samba**
+  Permite partajarea folderelor `originals` și `archive` prin rețeaua locală
 
 ## Monitorizare și Logging
 
@@ -72,6 +74,20 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 - Anumite opțiuni sunt disponibile doar când containerul MilDocDMS este activ
 - Se recomandă instalarea în ordinea prezentată în meniu (1-4) pentru dependențe
 - La instalarea MilDocDMS, asigurați-vă că Docker este instalat și funcțional
+
+## Accesare din Windows prin Samba
+
+După rularea opțiunii **10. Instalează și configurează Samba**, directoarele
+`originals` și `archive` din MilDocDMS devin disponibile în rețea. Pentru a le
+accesa de pe Windows:
+
+1. Aflați adresa IP a serverului Linux cu `hostname -I`.
+2. Deschideți Explorer și introduceți calea UNC corespunzătoare, de exemplu:
+   ```
+   \\<ip-server>\originals
+   \\<ip-server>\archive
+   ```
+3. Puteți crea shortcut-uri sau mapări la aceste locații pentru acces rapid.
 
 ## Contribuții
 
