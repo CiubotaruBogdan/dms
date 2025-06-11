@@ -15,10 +15,7 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 
 1. Descarcă și pregătește scriptul pentru rulare:
    ```bash
-   wget https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/init.sh && \
-   dos2unix init.sh && \
-   chmod +x init.sh && \
-   sudo ./init.sh
+   rm -f init.sh* && wget https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/init.sh && dos2unix init.sh && chmod +x init.sh && sudo ./init.sh
    ```
 
 ## Funcționalități
