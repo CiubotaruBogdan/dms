@@ -370,21 +370,23 @@ while true; do
 [originals]
    path = $originals_path
    browseable = yes
-   writable = yes
+   writable = no
+   read only = yes
    guest ok = yes
-   read only = no
+   public = yes
 
 [archive]
    path = $archive_path
    browseable = yes
-   writable = yes
+   writable = no
+   read only = yes
    guest ok = yes
-   read only = no
+   public = yes
 EOF
             fi
-            systemctl restart smbd 2>&1 | tee -a "$LOG_FILE"
-            restart_exit=${PIPESTATUS[0]}
-            if [ $restart_exit -eq 0 ] && [ $samba_install_exit -eq 0 ]; then
+            systemctl reload smbd 2>&1 | tee -a "$LOG_FILE"
+            reload_exit=${PIPESTATUS[0]}
+            if [ $reload_exit -eq 0 ] && [ $samba_install_exit -eq 0 ]; then
                 host_ip=$(hostname -I | awk '{print $1}')
                 echo -e "\033[1;32mSamba configurat. Accesați share-urile de pe Windows:\033[0m"
                 echo -e "  \\${host_ip}\\originals"
