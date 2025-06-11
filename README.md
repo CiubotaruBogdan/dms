@@ -49,21 +49,20 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
   - Oferă opțiunea de urmărire log-uri în timp real
 
 ### Gestionare Container MilDocDMS
-- **5. Dezinstalează MilDocDMS**
-  Elimină containerele, volumele și directorul MilDocDMS (dacă există).
-  Curăță orice resurse Docker rămase chiar dacă folderul a fost șters, inclusiv volumele cu baza de date și fișierele media.
-=======
-  Oprește și elimină containerele și șterge toate datele și fișierele MilDocDMS
-- **6. Mount container MilDocDMS**
+- **5. Alătură sistemul la domeniu**
+  Configurează integrarea în domeniul Active Directory folosind `realm join`.
+- **6. Dezinstalează MilDocDMS**
+  Elimină containerele, volumele și directorul MilDocDMS (dacă există). Curăță orice resurse Docker rămase chiar dacă folderul a fost șters, inclusiv volumele cu baza de date și fișierele media.
+- **7. Mount container MilDocDMS**
   Pornește containerele MilDocDMS folosind `docker compose up -d` (disponibil doar după instalare)
-- **7. Creare super utilizator**  
+- **8. Creare super utilizator**
   Creează un cont de administrator pentru interfața web (disponibil când serviciul rulează)
-- **8. Accesează shell container webserver**  
+- **9. Accesează shell container webserver**
   Deschide un shell în containerul webserver pentru operațiuni avansate
-- **9. Afișează path-ul folderului MilDocDMS**
+- **10. Afișează path-ul folderului MilDocDMS**
   Arată locația instalării MilDocDMS pe sistemul local
-- **10. Instalează și configurează Samba**
-  Permite partajarea folderelor `originals` și `archive` prin rețeaua locală
+- **11. Instalează și configurează Samba și partajează foldere**
+  Permite partajarea folderelor `originals` și `archive` prin rețeaua locală. Opțiunea este disponibilă doar după alăturarea la domeniu.
 
 ## Monitorizare și Logging
 
@@ -80,7 +79,7 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 
 ## Accesare din Windows prin Samba
 
-După rularea opțiunii **10. Instalează și configurează Samba**, directoarele
+După rularea opțiunii **11. Instalează și configurează Samba și partajează foldere**, directoarele
 `originals` și `archive` din MilDocDMS devin disponibile în rețea. Pentru a le
 accesa de pe Windows:
 

@@ -39,6 +39,13 @@ while true; do
         mildocdms_installed=0
     fi
 
+    # Verifică dacă sistemul este membru al unui domeniu
+    if command -v realm >/dev/null && [ -n "$(realm list 2>/dev/null)" ]; then
+        domain_joined=1
+    else
+        domain_joined=0
+    fi
+
     echo "======================================"
     echo "      Script de instalare MilDocDMS"
     echo "======================================"
@@ -48,17 +55,22 @@ while true; do
     echo "2. Instalează Ollama"
     echo "3. Instalează Docker"
     echo "4. Instalează MilDocDMS"
+    echo "5. Alătură sistemul la domeniu"
+    echo "6. Dezinstalează MilDocDMS (docker compose down)"
+    # Opțiunea 7 este disponibilă doar când MilDocDMS este instalat
+    if [ "$mildocdms_installed" -eq 1 ]; then
+        echo "7. Mount container MilDocDMS (docker compose up -d)"
     echo "5. Dezinstalează MilDocDMS (docker compose down)"
     # Opțiunea 6 este disponibilă doar când MilDocDMS este instalat
     if [ "$mildocdms_installed" -eq 1 ]; then
         echo "6. Mount container MilDocDMS (docker compose up -d)"
     fi
     if [ "$web_running" -eq 1 ]; then
-        echo "7. Creare super utilizator (createsuperuser)"
-        echo "8. Accesează shell container webserver"
-        echo "9. Afișează path-ul folderului MilDocDMS"
+        echo "8. Creare super utilizator (createsuperuser)"
+        echo "9. Accesează shell container webserver"
+        echo "10. Afișează path-ul folderului MilDocDMS"
     fi
-    echo "10. Instalează și configurează Samba"
+    echo "11. Instalează și configurează Samba și partajează foldere în rețea"
     echo "q. Ieșire"
     echo "--------------------------------------"
     read -p "Alege o opțiune: " opt
@@ -190,6 +202,31 @@ while true; do
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
         5)
+            echo "Alăturare la domeniu..."
+            if ! command -v realm >/dev/null; then
+                echo "Se instalează pachetele necesare pentru domeniu..."
+                apt-get install -y realmd sssd sssd-tools adcli samba-common 2>&1 | tee -a "$LOG_FILE"
+            fi
+            if [ $domain_joined -eq 1 ]; then
+                echo "Sistemul este deja membru al unui domeniu."
+                realm list 2>&1 | tee -a "$LOG_FILE"
+                read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+                continue
+            fi
+            read -p "Domeniu (exemplu example.com): " domain_name
+            read -p "Utilizator administrativ: " domain_user
+            realm join "$domain_name" -U "$domain_user" 2>&1 | tee -a "$LOG_FILE"
+            join_exit=${PIPESTATUS[0]}
+            if [ $join_exit -eq 0 ]; then
+                echo -e "\033[1;32mSistemul a fost alăturat cu succes domeniului $domain_name.\033[0m"
+                log "Sistem alăturat domeniului $domain_name."
+            else
+                echo -e "\033[1;31mEroare la alăturarea la domeniu.\033[0m"
+                log "Eroare alăturare domeniu."
+            fi
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        6)
             echo "Dezinstalare MilDocDMS (docker compose down -v)..."
             if [ -d "$mildocdms_dir" ]; then
                 cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
@@ -228,7 +265,7 @@ while true; do
             fi
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
-        6)
+        7)
             echo "Mount container MilDocDMS (docker compose up -d)..."
             if [ "$mildocdms_installed" -eq 0 ]; then
                 echo "Directorul MilDocDMS nu există. Instalează MilDocDMS mai întâi (opțiunea 4)."
@@ -251,7 +288,7 @@ while true; do
             fi
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
-        7)
+        8)
             if [ "$web_running" -eq 1 ]; then
                 echo "Creare super utilizator (docker compose run --rm webserver createsuperuser)..."
                 if [ -n "$SUDO_USER" ]; then
@@ -270,7 +307,7 @@ while true; do
                 read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             fi
             ;;
-        8)
+        9)
             if [ "$web_running" -eq 1 ]; then
                 echo "Acces container webserver..."
                 container_name=$(docker ps --filter "name=webserver" --format "{{.Names}}" | head -n 1)
@@ -283,7 +320,7 @@ while true; do
                 read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             fi
             ;;
-        9)
+        10)
             if [ "$web_running" -eq 1 ]; then
                 echo "Path-ul folderului MilDocDMS este:"
                 if [ -n "$SUDO_USER" ]; then
@@ -296,8 +333,13 @@ while true; do
                 read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             fi
             ;;
-        10)
-            echo "Instalare și configurare Samba..."
+        11)
+            if [ $domain_joined -eq 0 ]; then
+                echo "Sistemul nu este membru al unui domeniu. Rulați opțiunea 5 înainte."
+                read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+                continue
+            fi
+            echo "Instalare și configurare Samba și partajare foldere..."
             log "Încep instalarea Samba."
             if ! dpkg -s samba >/dev/null 2>&1; then
                 apt-get install -y samba 2>&1 | tee -a "$LOG_FILE"
