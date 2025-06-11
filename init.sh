@@ -42,6 +42,7 @@ while true; do
         echo "8. Accesează shell container webserver"
         echo "9. Afișează path-ul folderului MilDocDMS"
     fi
+    echo "10. Instalează și configurează Samba"
     echo "q. Ieșire"
     echo "--------------------------------------"
     read -p "Alege o opțiune: " opt
@@ -272,6 +273,68 @@ while true; do
                 echo "$mildocdms_dir"
                 read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             fi
+            ;;
+        10)
+            echo "Instalare și configurare Samba..."
+            log "Încep instalarea Samba."
+            if ! dpkg -s samba >/dev/null 2>&1; then
+                apt-get install -y samba 2>&1 | tee -a "$LOG_FILE"
+                samba_install_exit=${PIPESTATUS[0]}
+                if [ $samba_install_exit -ne 0 ]; then
+                    echo -e "\033[1;31mEroare la instalarea Samba.\033[0m"
+                    log "Eroare la instalarea Samba."
+                    read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+                    continue
+                fi
+            else
+                echo "Samba este deja instalat."
+                samba_install_exit=0
+            fi
+            if [ -n "$SUDO_USER" ]; then
+                user_home=$(eval echo "~$SUDO_USER")
+            else
+                user_home="$HOME"
+            fi
+            mildocdms_dir="$user_home/mildocdms"
+            originals_path="$mildocdms_dir/media/documents/originals"
+            archive_path="$mildocdms_dir/media/documents/archive"
+            if [ ! -d "$originals_path" ] || [ ! -d "$archive_path" ]; then
+                echo "Directorul MilDocDMS sau subdirectoarele necesare nu există."
+                log "Eroare: directoarele pentru Samba lipsesc."
+                read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+                continue
+            fi
+            if ! grep -q "\[originals\]" /etc/samba/smb.conf; then
+                cat <<EOF >> /etc/samba/smb.conf
+
+[originals]
+   path = $originals_path
+   browseable = yes
+   writable = yes
+   guest ok = yes
+   read only = no
+
+[archive]
+   path = $archive_path
+   browseable = yes
+   writable = yes
+   guest ok = yes
+   read only = no
+EOF
+            fi
+            systemctl restart smbd 2>&1 | tee -a "$LOG_FILE"
+            restart_exit=${PIPESTATUS[0]}
+            if [ $restart_exit -eq 0 ] && [ $samba_install_exit -eq 0 ]; then
+                host_ip=$(hostname -I | awk '{print $1}')
+                echo -e "\033[1;32mSamba configurat. Accesați share-urile de pe Windows:\033[0m"
+                echo -e "  \\${host_ip}\\originals"
+                echo -e "  \\${host_ip}\\archive"
+                log "Samba instalat și configurat."
+            else
+                echo -e "\033[1;31mEroare la configurarea Samba.\033[0m"
+                log "Eroare la configurarea Samba."
+            fi
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
         q|Q)
             echo "Ieșire..."
