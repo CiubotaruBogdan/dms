@@ -104,6 +104,21 @@ while true; do
             if [ $join_exit -eq 0 ]; then
                 echo -e "\033[1;32mSistemul a fost alăturat cu succes domeniului $domain_name.\033[0m"
                 log "Sistem alăturat domeniului $domain_name."
+                echo "Se permite autentificarea utilizatorilor de domeniu..."
+                realm permit --all 2>&1 | tee -a "$LOG_FILE"
+                pam-auth-update --enable mkhomedir --force 2>&1 | tee -a "$LOG_FILE"
+                echo "Configurare privilegii pentru grupul 'Domain Admins'..."
+                domain_upper=$(echo "$domain_name" | tr '[:lower:]' '[:upper:]')
+                sudoers_file="/etc/sudoers.d/domain_admins"
+                echo "%${domain_upper}\\\\Domain Admins ALL=(ALL:ALL) ALL" > "$sudoers_file"
+                chmod 440 "$sudoers_file"
+                log "Drepturi sudo acordate grupului Domain Admins."
+                if ! dpkg -l | grep -q xrdp; then
+                    echo "Se instalează xrdp pentru conectarea remote..."
+                    apt-get install -y xrdp 2>&1 | tee -a "$LOG_FILE"
+                fi
+                echo "allowed_users=anybody" > /etc/X11/Xwrapper.config
+                systemctl restart xrdp 2>&1 | tee -a "$LOG_FILE"
             else
                 echo -e "\033[1;31mEroare la alăturarea la domeniu.\033[0m"
                 log "Eroare alăturare domeniu."
