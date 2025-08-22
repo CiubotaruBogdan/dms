@@ -44,21 +44,22 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 ### Instalare și Actualizare
 - **1. Actualizează Linux**
   Actualizează sistemul folosind `apt-get update` și `apt-get upgrade -y`
-- **2. Instalează Ollama**
-  Instalează platforma Ollama folosind scriptul oficial de instalare
-- **3. Instalează Docker**
+- **2. Instalează Docker**
   Configurează și instalează Docker și componentele necesare:
   - docker-ce
   - docker-ce-cli
   - containerd.io
   - docker-buildx-plugin
   - docker-compose-plugin
-- **4. Instalează MilDocDMS**
+- **3. Instalează MilDocDMS**
   Instalează și configurează MilDocDMS:
   - Creează directorul de lucru în home-ul utilizatorului
   - Copiază fișierele docker-compose din directorul local `docker`
   - Pornește containerele necesare
   - Afișează statusul containerelor la final
+- **4. Instalează Ollama**
+  Instalează platforma Ollama folosind scriptul oficial de instalare
+
 
 ### Gestionare Container MilDocDMS
 - **6. Dezinstalează complet MilDocDMS**
