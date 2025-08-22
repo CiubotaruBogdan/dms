@@ -8,14 +8,15 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 - Conexiune la internet
 - Pachete necesare:
   ```bash
-  sudo apt install -y wget dos2unix xrdp curl pip
+  sudo apt install -y xrdp curl pip
   ```
 
 ## Instalare și Rulare
 
-1. Descarcă și pregătește scriptul pentru rulare:
+1. Asigură-te că fișierul `init.sh` și directorul `docker` se află în același folder. Apoi rulează scriptul:
    ```bash
-   rm -f init.sh* && wget https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/init.sh && dos2unix init.sh && chmod +x init.sh && sudo ./init.sh
+   chmod +x init.sh
+   sudo ./init.sh
    ```
 
 ## Funcționalități
@@ -56,7 +57,7 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 - **4. Instalează MilDocDMS**
   Instalează și configurează MilDocDMS:
   - Creează directorul de lucru în home-ul utilizatorului
-  - Descarcă și configurează fișierele docker-compose
+  - Copiază fișierele docker-compose din directorul local `docker`
   - Pornește containerele necesare
   - Oferă opțiunea de urmărire log-uri în timp real
 
