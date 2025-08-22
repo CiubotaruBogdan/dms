@@ -4,6 +4,7 @@
 # Logurile se vor salva în /tmp/script_intretinere.log
 
 LOG_FILE="/tmp/script_intretinere.log"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # Funcție pentru logare
 log() {
@@ -232,18 +233,18 @@ while true; do
             mkdir -p "$mildocdms_dir/media/documents/originals" "$mildocdms_dir/media/documents/archive" 2>&1 | tee -a "$LOG_FILE"
             cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
             rm -f docker-compose.env docker-compose.yml 2>&1 | tee -a "$LOG_FILE"
-            echo "Se descarcă docker-compose.env..."
-            wget -O docker-compose.env https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/docker/docker-compose.env 2>&1 | tee -a "$LOG_FILE"
+            echo "Se copiază docker-compose.env din folderul local..."
+            cp "$SCRIPT_DIR/docker/docker-compose.env" docker-compose.env 2>&1 | tee -a "$LOG_FILE"
             env_exit=${PIPESTATUS[0]}
             if [ $env_exit -ne 0 ]; then
-                echo -e "\033[1;31mEroare la descărcarea docker-compose.env.\033[0m"
+                echo -e "\033[1;31mEroare la copierea docker-compose.env.\033[0m"
                 continue
             fi
-            echo "Se descarcă docker-compose.yml..."
-            wget -O docker-compose.yml https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/docker/docker-compose.yml 2>&1 | tee -a "$LOG_FILE"
+            echo "Se copiază docker-compose.yml din folderul local..."
+            cp "$SCRIPT_DIR/docker/docker-compose.yml" docker-compose.yml 2>&1 | tee -a "$LOG_FILE"
             yml_exit=${PIPESTATUS[0]}
             if [ $yml_exit -ne 0 ]; then
-                echo -e "\033[1;31mEroare la descărcarea docker-compose.yml.\033[0m"
+                echo -e "\033[1;31mEroare la copierea docker-compose.yml.\033[0m"
                 continue
             fi
             echo "Pornește MilDocDMS cu docker compose up -d..."
