@@ -4,6 +4,7 @@
 # Logurile se vor salva în /tmp/script_intretinere.log
 
 LOG_FILE="/tmp/script_intretinere.log"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # Funcție pentru logare
 log() {
@@ -85,9 +86,9 @@ while true; do
     echo "02. Alătură sistemul la domeniu"
     echo "03. Configurează acces domeniu și xrdp"
     echo "1. Actualizează Linux"
-    echo "2. Instalează Ollama"
-    echo "3. Instalează Docker"
-    echo "4. Instalează MilDocDMS"
+    echo "2. Instalează Docker"
+    echo "3. Instalează MilDocDMS"
+    echo "4. Instalează Ollama"
     if [ "$mildocdms_installed" -eq 1 ]; then
         echo "6. Dezinstalează complet MilDocDMS (oprește și șterge datele)"
         echo "7. Mount container MilDocDMS (docker compose up -d)"
@@ -170,22 +171,6 @@ while true; do
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
         2)
-            echo "Instalare Ollama..."
-            log "Încep instalarea Ollama."
-            curl -fsSL https://ollama.com/install.sh 2>&1 | tee -a "$LOG_FILE" | sh
-            ollama_exit=${PIPESTATUS[2]}
-            if [ $ollama_exit -eq 0 ]; then
-                echo -e "\033[1;32mOllama instalat cu succes.\033[0m"
-                log "Ollama instalat cu succes."
-            else
-                echo -e "\033[1;31mEroare la instalarea Ollama.\033[0m"
-                log "Eroare la instalarea Ollama."
-            fi
-            echo -e "\n--- Log-ul operației ---"
-            tail -n 10 "$LOG_FILE"
-            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
-            ;;
-        3)
             echo "Instalare Docker..."
             log "Încep instalarea Docker."
             apt-get update 2>&1 | tee -a "$LOG_FILE"
@@ -214,10 +199,10 @@ while true; do
             tail -n 10 "$LOG_FILE"
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
-        4)
+        3)
             echo "Instalare MilDocDMS..."
             if ! command -v docker &> /dev/null; then
-                echo -e "\033[1;31mDocker nu este instalat. Instalează Docker mai întâi (opțiunea 3).\033[0m"
+                echo -e "\033[1;31mDocker nu este instalat. Instalează Docker mai întâi (opțiunea 2).\033[0m"
                 read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
                 continue
             fi
@@ -232,18 +217,18 @@ while true; do
             mkdir -p "$mildocdms_dir/media/documents/originals" "$mildocdms_dir/media/documents/archive" 2>&1 | tee -a "$LOG_FILE"
             cd "$mildocdms_dir" || { echo "Nu se poate accesa directorul $mildocdms_dir"; continue; }
             rm -f docker-compose.env docker-compose.yml 2>&1 | tee -a "$LOG_FILE"
-            echo "Se descarcă docker-compose.env..."
-            wget -O docker-compose.env https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/docker/docker-compose.env 2>&1 | tee -a "$LOG_FILE"
+            echo "Se copiază docker-compose.env din folderul local..."
+            cp "$SCRIPT_DIR/docker/docker-compose.env" docker-compose.env 2>&1 | tee -a "$LOG_FILE"
             env_exit=${PIPESTATUS[0]}
             if [ $env_exit -ne 0 ]; then
-                echo -e "\033[1;31mEroare la descărcarea docker-compose.env.\033[0m"
+                echo -e "\033[1;31mEroare la copierea docker-compose.env.\033[0m"
                 continue
             fi
-            echo "Se descarcă docker-compose.yml..."
-            wget -O docker-compose.yml https://raw.githubusercontent.com/CiubotaruBogdan/dms/main/docker/docker-compose.yml 2>&1 | tee -a "$LOG_FILE"
+            echo "Se copiază docker-compose.yml din folderul local..."
+            cp "$SCRIPT_DIR/docker/docker-compose.yml" docker-compose.yml 2>&1 | tee -a "$LOG_FILE"
             yml_exit=${PIPESTATUS[0]}
             if [ $yml_exit -ne 0 ]; then
-                echo -e "\033[1;31mEroare la descărcarea docker-compose.yml.\033[0m"
+                echo -e "\033[1;31mEroare la copierea docker-compose.yml.\033[0m"
                 continue
             fi
             echo "Pornește MilDocDMS cu docker compose up -d..."
@@ -254,12 +239,26 @@ while true; do
                 log "MilDocDMS instalat cu succes."
                 echo -e "\nStatusul containerelor MilDocDMS:"
                 docker compose ps 2>&1 | tee -a "$LOG_FILE"
-                echo -e "\n--- Urmărirea log-urilor în timp real ---"
-                docker compose logs --follow --tail=100
             else
                 echo -e "\033[1;31mEroare la instalarea MilDocDMS.\033[0m"
                 log "Eroare la instalarea MilDocDMS."
             fi
+            read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
+            ;;
+        4)
+            echo "Instalare Ollama..."
+            log "Încep instalarea Ollama."
+            curl -fsSL https://ollama.com/install.sh 2>&1 | tee -a "$LOG_FILE" | sh
+            ollama_exit=${PIPESTATUS[2]}
+            if [ $ollama_exit -eq 0 ]; then
+                echo -e "\033[1;32mOllama instalat cu succes.\033[0m"
+                log "Ollama instalat cu succes."
+            else
+                echo -e "\033[1;31mEroare la instalarea Ollama.\033[0m"
+                log "Eroare la instalarea Ollama."
+            fi
+            echo -e "\n--- Log-ul operației ---"
+            tail -n 10 "$LOG_FILE"
             read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
             ;;
         6)
@@ -304,7 +303,7 @@ while true; do
         7)
             echo "Mount container MilDocDMS (docker compose up -d)..."
             if [ "$mildocdms_installed" -eq 0 ]; then
-                echo "Directorul MilDocDMS nu există. Instalează MilDocDMS mai întâi (opțiunea 4)."
+                echo "Directorul MilDocDMS nu există. Instalează MilDocDMS mai întâi (opțiunea 3)."
                 read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
                 continue
             fi
@@ -316,8 +315,6 @@ while true; do
                 log "Container MilDocDMS montat cu succes."
                 echo -e "\nStatusul containerelor MilDocDMS:"
                 docker compose ps 2>&1 | tee -a "$LOG_FILE"
-                echo -e "\n--- Urmărirea log-urilor în timp real ---"
-                docker compose logs --follow --tail=100
             else
                 echo -e "\033[1;31mEroare la montarea containerului MilDocDMS.\033[0m"
                 log "Eroare la montarea containerului MilDocDMS."
@@ -334,7 +331,7 @@ while true; do
                 fi
                 mildocdms_dir="$user_home/mildocdms"
                 if [ ! -d "$mildocdms_dir" ]; then
-                    echo "Directorul MilDocDMS nu există. Instalează MilDocDMS mai întâi (opțiunea 4)."
+                    echo "Directorul MilDocDMS nu există. Instalează MilDocDMS mai întâi (opțiunea 3)."
                     read -n1 -rsp $'\nApasă orice tastă pentru a reveni la meniu...\n'
                     continue
                 fi
