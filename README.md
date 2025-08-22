@@ -38,7 +38,6 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
   `ssl-cert` și rescrie `/etc/X11/Xwrapper.config` cu `needs_root_rights=yes`
   pentru a evita ecranul negru la reconectare.
 - **03. Configurează acces domeniu și xrdp**
-=======
   Permite autentificarea utilizatorilor de domeniu și configurează accesul
   remote prin `xrdp` pentru sisteme deja alăturate domeniului
 
@@ -59,7 +58,7 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
   - Creează directorul de lucru în home-ul utilizatorului
   - Copiază fișierele docker-compose din directorul local `docker`
   - Pornește containerele necesare
-  - Oferă opțiunea de urmărire log-uri în timp real
+  - Afișează statusul containerelor la final
 
 ### Gestionare Container MilDocDMS
 - **6. Dezinstalează complet MilDocDMS**
@@ -77,7 +76,7 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 
 - Toate operațiunile sunt înregistrate în `/tmp/script_intretinere.log`
 - Opțiunile de vizualizare (00) și ștergere (01) a logurilor sunt disponibile în meniul principal
-- Pentru containerele active, scriptul oferă urmărirea log-urilor în timp real
+- Pentru containerele active, statusul poate fi verificat cu `docker compose ps`
 
 ## Note de Utilizare
 

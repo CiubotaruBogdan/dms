@@ -255,8 +255,6 @@ while true; do
                 log "MilDocDMS instalat cu succes."
                 echo -e "\nStatusul containerelor MilDocDMS:"
                 docker compose ps 2>&1 | tee -a "$LOG_FILE"
-                echo -e "\n--- Urmărirea log-urilor în timp real ---"
-                docker compose logs --follow --tail=100
             else
                 echo -e "\033[1;31mEroare la instalarea MilDocDMS.\033[0m"
                 log "Eroare la instalarea MilDocDMS."
@@ -317,8 +315,6 @@ while true; do
                 log "Container MilDocDMS montat cu succes."
                 echo -e "\nStatusul containerelor MilDocDMS:"
                 docker compose ps 2>&1 | tee -a "$LOG_FILE"
-                echo -e "\n--- Urmărirea log-urilor în timp real ---"
-                docker compose logs --follow --tail=100
             else
                 echo -e "\033[1;31mEroare la montarea containerului MilDocDMS.\033[0m"
                 log "Eroare la montarea containerului MilDocDMS."
