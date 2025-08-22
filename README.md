@@ -60,6 +60,7 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 - **4. Instalează Ollama**
   Instalează platforma Ollama folosind scriptul oficial de instalare
 
+
 ### Gestionare Container MilDocDMS
 - **6. Dezinstalează complet MilDocDMS**
   Elimină containerele, volumele și directorul MilDocDMS (dacă există). Curăță orice resurse Docker rămase chiar dacă folderul a fost șters, inclusiv volumele cu baza de date și fișierele media.
