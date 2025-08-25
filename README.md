@@ -13,6 +13,11 @@ Acest repository conține script-ul `init.sh`, un instrument interactiv de într
 
 ## Instalare și Rulare
 
+Dacă se dorește instalarea în Docker Desktop Windows, se folosește comanda următoare pentru a crea containerul, în folderul docker din acest repo
+   ```bash
+docker compose --project-name mildocdms up -d
+   ```
+
 1. Asigură-te că fișierul `init.sh` și directorul `docker` se află în același folder. Apoi rulează scriptul:
    ```bash
    chmod +x init.sh
